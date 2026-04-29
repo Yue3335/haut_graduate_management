@@ -1,0 +1,9 @@
+# 数据库配置（复制此文件为 config.properties 并填写真实值）
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/haut_graduate_management?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8
+db.user=root
+db.password=your_password_here
+
+# DeepSeek API 配置
+deepseek.api.key=your_api_key_here
+deepseek.api.url=https://api.deepseek.com/chat/completions
