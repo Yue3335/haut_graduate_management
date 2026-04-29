@@ -1,0 +1,1 @@
+console.log("HAUT Graduate Management System loaded.");
