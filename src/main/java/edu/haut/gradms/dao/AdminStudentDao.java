@@ -65,7 +65,7 @@ public class AdminStudentDao {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("查询学生列表失败", e);
         }
 
         return list;
