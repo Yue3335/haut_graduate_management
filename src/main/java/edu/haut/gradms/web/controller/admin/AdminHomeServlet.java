@@ -1,6 +1,7 @@
 package edu.haut.gradms.web.controller.admin;
 
 import edu.haut.gradms.dao.StatDao;
+import edu.haut.gradms.web.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -21,12 +22,7 @@ public class AdminHomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("isAdmin") == null
-                || !(Boolean) session.getAttribute("isAdmin")) {
-            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "无管理员访问权限");
-            return;
-        }
+        if (!SessionUtil.requireAdmin(req, resp)) return;
 
         // 查询统计数据，用于首页图表
         List<Map<String, Object>> majorStudentCount = statDao.countStudentsByMajor();
