@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.util.Properties;
 
 // 新增：flexmark 的导入
 import com.vladsch.flexmark.parser.Parser;
@@ -15,9 +17,24 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 
 public class AiCareerService {
 
-    private static final String API_URL = "https://api.deepseek.com/chat/completions";
-    private static final String API_KEY = "sk-9407a19216384899ad21159fca6f0504";
-    private static final String MODEL   = "deepseek-chat";
+    private static final String API_URL;
+    private static final String API_KEY;
+    private static final String MODEL = "deepseek-chat";
+
+    static {
+        try (InputStream in = AiCareerService.class.getClassLoader()
+                .getResourceAsStream("config.properties")) {
+            Properties props = new Properties();
+            if (in != null) {
+                props.load(in);
+            }
+            API_URL = props.getProperty("deepseek.api.url",
+                    "https://api.deepseek.com/chat/completions");
+            API_KEY = props.getProperty("deepseek.api.key", "");
+        } catch (IOException e) {
+            throw new RuntimeException("AI 服务配置加载失败", e);
+        }
+    }
 
     private static final int CONNECT_TIMEOUT_MS = 15000;
     private static final int READ_TIMEOUT_MS    = 60000;
