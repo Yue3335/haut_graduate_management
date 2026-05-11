@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class UserDao {
+public class UserDao implements IUserDao {
 
     public User findByUsername(String username) {
         String sql = "SELECT * FROM user WHERE username = ?";
