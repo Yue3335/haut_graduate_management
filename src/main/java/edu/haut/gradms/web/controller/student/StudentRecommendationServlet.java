@@ -11,6 +11,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,13 +26,17 @@ public class StudentRecommendationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
         HttpSession session = req.getSession(false);
         if (session == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
+
         User currentUser = (User) session.getAttribute("currentUser");
         Boolean isStudent = (Boolean) session.getAttribute("isStudent");
+
         if (currentUser == null || isStudent == null || !isStudent) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN, "无访问权限");
             return;
@@ -43,36 +48,53 @@ public class StudentRecommendationServlet extends HttpServlet {
             return;
         }
 
+        /*
+         * 1. 查询课程成绩明细，用于页面展示
+         */
         Map<String, List<GradeItem>> termGrades =
                 studentGradeDao.findGradesByStudentIdForFourTerms(student.getStudentId());
+
+        /*
+         * 2. 查询 GPA 走势，用于页面折线图
+         */
+        Map<String, Double> gpaMap =
+                studentGradeDao.findGpaTrendByStudentId(student.getStudentId());
 
         req.setAttribute("student", student);
         req.setAttribute("termGrades", termGrades);
 
-        req.getRequestDispatcher("/WEB-INF/jsp/student/recommendation.jsp").forward(req, resp);
+        req.setAttribute("gpaTermList", new ArrayList<>(gpaMap.keySet()));
+        req.setAttribute("gpaValueList", new ArrayList<>(gpaMap.values()));
+
+        req.getRequestDispatcher("/WEB-INF/jsp/student/recommendation.jsp")
+                .forward(req, resp);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
         HttpSession session = req.getSession(false);
         if (session == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
             return;
         }
+
         User currentUser = (User) session.getAttribute("currentUser");
         Boolean isStudent = (Boolean) session.getAttribute("isStudent");
+
         if (currentUser == null || isStudent == null || !isStudent) {
             resp.sendError(HttpServletResponse.SC_FORBIDDEN, "无访问权限");
             return;
         }
 
-        req.setCharacterEncoding("UTF-8");
-
         String mbti = req.getParameter("mbti");
-        if (mbti == null || mbti.isEmpty()) {
+        if (mbti == null || mbti.trim().isEmpty()) {
             mbti = "未填写";
+        } else {
+            mbti = mbti.trim();
         }
 
         Student student = studentDao.findByUserId(currentUser.getUserId());
@@ -81,50 +103,106 @@ public class StudentRecommendationServlet extends HttpServlet {
             return;
         }
 
+        /*
+         * 1. 课程成绩明细：用于 AI 分析，也用于页面继续显示课程表
+         */
         Map<String, List<GradeItem>> termGrades =
                 studentGradeDao.findGradesByStudentIdForFourTerms(student.getStudentId());
 
-        // TODO：建议从专业表查中文名，这里先写一个占位
-        String majorName = "计算机科学与技术"; // 示例，你可以换成真正查询结果
+        /*
+         * 2. GPA 走势：用于折线图，也可以加入 AI prompt
+         */
+        Map<String, Double> gpaMap =
+                studentGradeDao.findGpaTrendByStudentId(student.getStudentId());
 
-        // 构造 prompt
+        String majorName = "软件工程";
+
         StringBuilder sb = new StringBuilder();
-        sb.append("请根据以下学生信息，推荐适合的岗位，并分点给出具体建议：\n\n");
+
+        sb.append("请根据以下学生信息，推荐适合的岗位，并分点给出具体建议。\n\n");
+
         sb.append("【基本信息】\n");
         sb.append("专业：").append(majorName).append("\n");
         sb.append("MBTI 类型：").append(mbti).append("\n\n");
 
-        sb.append("【成绩概况】\n");
-        for (Map.Entry<String, List<GradeItem>> entry : termGrades.entrySet()) {
-            String term = entry.getKey();
-            List<GradeItem> grades = entry.getValue();
-            sb.append("学期 ").append(term).append("：\n");
-            for (GradeItem g : grades) {
-                sb.append("  - 课程：").append(g.getCourseName())
-                        .append("，成绩：").append(g.getScore())
-                        .append("，学分：").append(g.getCredit())
+        sb.append("【GPA 走势】\n");
+        if (gpaMap == null || gpaMap.isEmpty()) {
+            sb.append("暂无 GPA 数据。\n\n");
+        } else {
+            for (Map.Entry<String, Double> entry : gpaMap.entrySet()) {
+                sb.append("学期 ").append(entry.getKey())
+                        .append("：GPA ")
+                        .append(entry.getValue())
                         .append("\n");
             }
             sb.append("\n");
         }
-        sb.append("请你综合考虑专业、成绩、MBTI 类型，从以下几个方面进行分析：\n");
-        sb.append("1. 适合的岗位类型（例如：后台开发、前端开发、数据分析、算法工程师、测试工程师、产品经理等），列出 3~5 个备选方向。\n");
-        sb.append("2. 每个岗位方向对应的核心技能要求，以及该学生当前的匹配度（简单说明理由）。\n");
-        sb.append("3. 接下来 1~2 年内可以重点提升的课程/技能（给出具体建议）。\n");
-        sb.append("4. 如果未来考虑考研或找工作，分别给一句简要建议。\n");
+
+        sb.append("【课程成绩明细】\n");
+
+        if (termGrades == null || termGrades.isEmpty()) {
+            sb.append("暂无课程成绩数据。\n\n");
+        } else {
+            for (Map.Entry<String, List<GradeItem>> entry : termGrades.entrySet()) {
+                String term = entry.getKey();
+                List<GradeItem> grades = entry.getValue();
+
+                sb.append("学期 ").append(term).append("：\n");
+
+                if (grades == null || grades.isEmpty()) {
+                    sb.append("  - 暂无成绩\n");
+                } else {
+                    for (GradeItem g : grades) {
+                        sb.append("  - 课程：")
+                                .append(g.getCourseName())
+                                .append("，成绩：");
+
+                        if (g.getScoreText() != null && !g.getScoreText().trim().isEmpty()) {
+                            sb.append(g.getScoreText());
+                        } else {
+                            sb.append(g.getScore());
+                        }
+
+                        sb.append("，学分：")
+                                .append(g.getCredit());
+
+                        if (g.getCourseAttr() != null && !g.getCourseAttr().trim().isEmpty()) {
+                            sb.append("，属性：").append(g.getCourseAttr());
+                        }
+
+                        if (g.getGradePoint() != null) {
+                            sb.append("，绩点：").append(g.getGradePoint());
+                        }
+
+                        sb.append("\n");
+                    }
+                }
+
+                sb.append("\n");
+            }
+        }
+
+        sb.append("请你综合考虑专业、成绩结构、GPA 走势和 MBTI 类型，从以下几个方面进行分析：\n");
+        sb.append("1. 适合的岗位类型，例如后台开发、前端开发、数据分析、算法工程师、测试工程师、产品经理等，列出 3 到 5 个备选方向。\n");
+        sb.append("2. 每个岗位方向对应的核心技能要求，以及该学生当前的匹配度，简单说明理由。\n");
+        sb.append("3. 根据成绩中的优势课程和薄弱课程，指出接下来 1 到 2 年内应该重点提升的课程或技能。\n");
+        sb.append("4. 如果未来考虑考研或找工作，分别给出简要建议。\n");
         sb.append("请使用简体中文回答，并使用合适的 Markdown 标题和列表结构。");
 
         String prompt = sb.toString();
 
-        // 调用 AI：返回的是 HTML（已经处理过 Markdown）
         String aiHtml = aiCareerService.generateCareerSuggestion(prompt);
 
-        // 设置属性，转发回 JSP
         req.setAttribute("student", student);
         req.setAttribute("termGrades", termGrades);
+
+        req.setAttribute("gpaTermList", new ArrayList<>(gpaMap.keySet()));
+        req.setAttribute("gpaValueList", new ArrayList<>(gpaMap.values()));
+
         req.setAttribute("mbti", mbti);
         req.setAttribute("aiSuggestion", aiHtml);
 
-        req.getRequestDispatcher("/WEB-INF/jsp/student/recommendation.jsp").forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/jsp/student/recommendation.jsp")
+                .forward(req, resp);
     }
 }

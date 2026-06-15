@@ -6,7 +6,7 @@
     --primary-color: #2c5282;
     --primary-light: #3182ce;
     --primary-dark: #1a365d;
-    
+
     /* 辅助色 */
     --success-color: #38b2ac;
     --warning-color: #ed8936;
@@ -16,7 +16,7 @@
     --green-color: #48bb78;
     --yellow-color: #ecc94b;
     --orange-color: #f6ad55;
-    
+
     /* 中性色 */
     --bg-primary: #ffffff;
     --bg-secondary: #f8fafc;
@@ -24,34 +24,34 @@
     --bg-gradient-blue: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
     --bg-gradient-green: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
     --bg-gradient-purple: linear-gradient(135deg, #faf5ff 0%, #e6fffa 100%);
-    
+
     --text-primary: #2d3748;
     --text-secondary: #4a5568;
     --text-muted: #718096;
     --text-light: #f7fafc;
-    
+
     --border-color: #e8eef4;
     --border-hover: #d1e0f0;
     --border-dashed: #cbd5e0;
-    
+
     /* 阴影 */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.05);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
     --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
-    
+
     /* 圆角 */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
     --radius-round: 50%;
-    
+
     /* 过渡 */
     --transition: all 0.3s ease;
     --transition-fast: all 0.2s ease;
     --transition-slow: all 0.5s ease;
-    
+
     /* 图标颜色 */
     --icon-primary: #3182ce;
     --icon-secondary: #4a5568;
@@ -776,7 +776,7 @@ a:hover {
     .container {
         max-width: 100%;
     }
-    
+
     /* 减少导航栏项的间距 */
     .navbar-nav .nav-item {
         margin-right: 0.5rem;
@@ -789,18 +789,18 @@ a:hover {
     .col-md-6 {
         margin-bottom: 1.5rem;
     }
-    
+
     /* 调整表格显示 */
     .table-responsive {
         overflow-x: auto;
     }
-    
+
     /* 调整按钮大小 */
     .btn {
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
     }
-    
+
     /* 调整卡片间距 */
     .card {
         margin-bottom: 1.5rem;
@@ -813,7 +813,7 @@ a:hover {
     body {
         font-size: 0.875rem;
     }
-    
+
     /* 调整标题大小 */
     h1 { font-size: 1.75rem; }
     h2 { font-size: 1.5rem; }
@@ -821,46 +821,46 @@ a:hover {
     h4 { font-size: 1.125rem; }
     h5 { font-size: 1rem; }
     h6 { font-size: 0.875rem; }
-    
+
     /* 调整卡片内边距 */
     .card-body {
         padding: 1rem;
     }
-    
+
     .card-header,
     .card-footer {
         padding: 0.75rem 1rem;
     }
-    
+
     /* 调整按钮大小 */
     .btn {
         padding: 0.4375rem 0.875rem;
         font-size: 0.8125rem;
     }
-    
+
     /* 调整表单样式 */
     .form-control {
         padding: 0.5rem 0.75rem;
     }
-    
+
     .form-row > .form-group {
         margin-right: 0;
         margin-left: 0;
         margin-bottom: 0.75rem;
         flex: 100%;
     }
-    
+
     /* 调整登录页面布局 */
     .login-container {
         flex-direction: column;
     }
-    
+
     .login-info,
     .login-form {
         flex: 100%;
         max-width: 100%;
     }
-    
+
     .login-info {
         margin-bottom: 1.5rem;
     }
@@ -872,48 +872,48 @@ a:hover {
     .container {
         padding: 0 1rem;
     }
-    
+
     /* 调整卡片样式 */
     .card {
         margin-bottom: 1rem;
         border-radius: var(--radius-md);
     }
-    
+
     .card-header,
     .card-body,
     .card-footer {
         padding: 0.75rem 1rem;
     }
-    
+
     /* 调整标题大小 */
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.375rem; }
     h3 { font-size: 1.125rem; }
-    
+
     /* 调整导航栏 */
     .navbar-nav .nav-item {
         margin-right: 0;
         margin-bottom: 0.25rem;
     }
-    
+
     /* 调整统计卡片 */
     .stats-card {
         padding: 1rem;
         margin-bottom: 1rem;
     }
-    
+
     /* 调整按钮样式 */
     .btn {
         width: 100%;
         margin-bottom: 0.5rem;
     }
-    
+
     /* 调整间距 */
     .mb-3 { margin-bottom: 0.75rem !important; }
     .mt-3 { margin-top: 0.75rem !important; }
     .mb-4 { margin-bottom: 1rem !important; }
     .mt-4 { margin-top: 1rem !important; }
-    
+
     /* 调整图表容器 */
     .chart-container {
         height: 300px !important;
@@ -925,19 +925,19 @@ a:hover {
     /* 进一步调整标题大小 */
     h1 { font-size: 1.25rem; }
     h2 { font-size: 1.125rem; }
-    
+
     /* 调整表单元素 */
     .form-label {
         font-size: 0.8125rem;
     }
-    
+
     /* 调整卡片内边距 */
     .card-header,
     .card-body,
     .card-footer {
         padding: 0.625rem 0.875rem;
     }
-    
+
     /* 调整按钮内边距 */
     .btn {
         padding: 0.375rem 0.75rem;

@@ -59,7 +59,7 @@
         width: 4px;
         height: 18px;
         border-radius: 4px;
-        background: #3b82f6; /* 浅蓝 */
+        background: #3b82f6;
     }
     .list-card-body {
         padding: 12px 16px 16px;
@@ -95,15 +95,15 @@
         white-space: nowrap;
     }
     .status-employment {
-        background-color: #dbeafe;  /* 浅蓝 */
+        background-color: #dbeafe;
         color: #1d4ed8;
     }
     .status-waiting {
-        background-color: #fef3c7;  /* 浅黄 */
+        background-color: #fef3c7;
         color: #92400e;
     }
     .status-other {
-        background-color: #e5e7eb;  /* 浅灰 */
+        background-color: #e5e7eb;
         color: #374151;
     }
 
@@ -127,16 +127,14 @@
 
 <div class="container">
     <div class="row">
-        <!-- 左侧教师导航 -->
         <jsp:include page="/WEB-INF/jsp/teacher/sidebar.jsp"/>
 
-        <!-- 右侧内容 -->
         <div class="col-md-9">
-            <h3 class="page-title">学生就业情况列表（最新一次登记）</h3>
+            <h3 class="page-title">学生就业待审核列表（${scopeLabel}）</h3>
 
             <c:if test="${empty latestEmploymentList}">
                 <div class="alert alert-info empty-alert">
-                    暂无学生就业登记数据。
+                    暂无流转到你这里的待审核就业登记。
                 </div>
             </c:if>
 
@@ -150,10 +148,12 @@
                             共 ${fn:length(latestEmploymentList)} 条记录
                         </div>
                     </div>
+
                     <div class="list-card-body">
                         <p class="stats-hint">
-                            每位学生仅显示最近一次就业登记记录，可点击“查看详情”查看更多信息。
+                            这里只显示已经流转到当前登录角色的待审核就业登记。前一级未通过时，后一级不会在此处看到该记录。
                         </p>
+
                         <div class="table-responsive">
                             <table class="table table-sm table-striped align-middle table-employment">
                                 <thead>
@@ -164,14 +164,17 @@
                                     <th style="width: 22%;">单位</th>
                                     <th style="width: 14%;">岗位</th>
                                     <th style="width: 12%;">城市</th>
+                                    <th style="width: 12%;">当前节点</th>
                                     <th style="width: 16%;">登记时间</th>
                                     <th style="width: 10%;">操作</th>
                                 </tr>
                                 </thead>
+
                                 <tbody>
                                 <c:forEach var="e" items="${latestEmploymentList}">
                                     <tr>
                                         <td>${e.studentId}</td>
+
                                         <td>
                                             <c:choose>
                                                 <c:when test="${not empty e.studentNo}">
@@ -182,6 +185,7 @@
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
+
                                         <td>
                                             <c:choose>
                                                 <c:when test="${e.status != null && (fn:contains(e.status, '就业') || fn:contains(e.status, '签约') || fn:contains(e.status, '录用'))}">
@@ -192,27 +196,49 @@
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="status-pill status-other">
-                                                        <c:out value="${e.status}" default="-" />
+                                                        <c:out value="${e.status}" default="-"/>
                                                     </span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
+
                                         <td>
                                             <c:out value="${e.companyName}" default="-"/>
                                         </td>
+
                                         <td>
                                             <c:out value="${e.position}" default="-"/>
                                         </td>
+
                                         <td>
                                             <c:out value="${e.city}" default="-"/>
                                         </td>
+
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${e.reviewStage == 'SUPERVISOR'}">
+                                                    <span class="status-pill status-waiting">指导老师审核</span>
+                                                </c:when>
+                                                <c:when test="${e.reviewStage == 'CLASS_TEACHER'}">
+                                                    <span class="status-pill status-waiting">班主任审核</span>
+                                                </c:when>
+                                                <c:when test="${e.reviewStage == 'COUNSELOR'}">
+                                                    <span class="status-pill status-waiting">导员审核</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-pill status-other">${e.reviewStage}</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+
                                         <td>
                                             <c:out value="${e.reportTime}" default="-"/>
                                         </td>
+
                                         <td>
                                             <a href="${pageContext.request.contextPath}/teacher/employment/detail?studentId=${e.studentId}"
                                                class="btn btn-sm btn-outline-secondary">
-                                                查看详情
+                                                去审核
                                             </a>
                                         </td>
                                     </tr>

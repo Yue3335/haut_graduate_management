@@ -1,28 +1,76 @@
 package edu.haut.gradms.model;
 
 public class GradeItem {
-    private String term;        // 学期，如 2022-1
-    private String courseName;  // 课程名
-    private String courseCode;  // 课程代码
-    private double credit;      // 学分
-    private double score;       // 分数
-    private Double gradePoint;  // 绩点（可以是 null）
+    private String term;
+    private String courseName;
+    private String courseCode;
+    private double credit;
+    private double score;
+    private String scoreText;
+    private Double gradePoint;
+    private String courseAttr;
 
-    public String getTerm() { return term; }
-    public void setTerm(String term) { this.term = term; }
+    public String getTerm() {
+        return term;
+    }
 
-    public String getCourseName() { return courseName; }
-    public void setCourseName(String courseName) { this.courseName = courseName; }
+    public void setTerm(String term) {
+        this.term = term;
+    }
 
-    public String getCourseCode() { return courseCode; }
-    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
+    public String getCourseName() {
+        return courseName;
+    }
 
-    public double getCredit() { return credit; }
-    public void setCredit(double credit) { this.credit = credit; }
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
+    }
 
-    public double getScore() { return score; }
-    public void setScore(double score) { this.score = score; }
+    public String getCourseCode() {
+        return courseCode;
+    }
 
-    public Double getGradePoint() { return gradePoint; }
-    public void setGradePoint(Double gradePoint) { this.gradePoint = gradePoint; }
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
+    }
+
+    public double getCredit() {
+        return credit;
+    }
+
+    public void setCredit(double credit) {
+        this.credit = credit;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public String getScoreText() {
+        return scoreText;
+    }
+
+    public void setScoreText(String scoreText) {
+        this.scoreText = scoreText;
+    }
+
+    public Double getGradePoint() {
+        return gradePoint;
+    }
+
+    public void setGradePoint(Double gradePoint) {
+        this.gradePoint = gradePoint;
+    }
+
+    public String getCourseAttr() {
+        return courseAttr;
+    }
+
+    public void setCourseAttr(String courseAttr) {
+        this.courseAttr = courseAttr;
+    }
 }

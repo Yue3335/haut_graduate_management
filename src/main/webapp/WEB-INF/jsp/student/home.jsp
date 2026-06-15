@@ -11,7 +11,6 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
 <style>
-    /* 学生首页专属样式 - 科研风格统一 */
     .page-title {
         color: #2d3748;
         font-weight: 600;
@@ -33,7 +32,6 @@
         border-radius: 1px;
     }
 
-    /* 警告提示样式 */
     .warning-alert {
         background-color: #fef7fb;
         border: 1px solid #ed8936;
@@ -45,7 +43,6 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
-    /* 信息卡片样式 - 科研风 */
     .info-card {
         border: 1px solid #e8eef4;
         border-radius: 12px;
@@ -98,7 +95,6 @@
         display: inline-block;
     }
 
-    /* 空数据提示 */
     .empty-info-tip {
         color: #718096;
         font-size: 14px;
@@ -106,13 +102,13 @@
         margin: 0;
     }
 
-    /* 图表卡片 */
     .chart-card {
         border: 1px solid #e8eef4;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         overflow: hidden;
         margin-bottom: 20px;
+        background: #ffffff;
     }
 
     .chart-card-header {
@@ -139,16 +135,24 @@
 
     .chart-container {
         width: 100%;
-        height: 260px;
+        height: 300px;
     }
 
-    /* 响应式适配 */
+    .gpa-explain {
+        font-size: 12px;
+        color: #64748b;
+        line-height: 1.7;
+        padding: 0 4px 6px;
+        margin-top: 4px;
+    }
+
     @media (max-width: 992px) {
         .info-card-body {
             padding: 16px;
         }
+
         .chart-container {
-            height: 240px;
+            height: 280px;
         }
     }
 
@@ -156,26 +160,31 @@
         .page-title {
             font-size: 20px;
         }
+
         .info-card-header {
             padding: 12px 16px;
             font-size: 14px;
         }
+
         .info-card-body {
             padding: 14px;
             font-size: 13px;
         }
+
         .chart-card-header {
             padding: 10px 14px;
+        }
+
+        .chart-container {
+            height: 260px;
         }
     }
 </style>
 
 <div class="container">
     <div class="row">
-        <!-- 左侧学生导航 -->
         <jsp:include page="/WEB-INF/jsp/student/sidebar.jsp"/>
 
-        <!-- 右侧主要内容 -->
         <div class="col-md-9">
             <h3 class="page-title">学生首页</h3>
 
@@ -187,7 +196,6 @@
 
             <c:if test="${not empty student}">
                 <div class="row">
-                    <!-- 基本信息 -->
                     <div class="col-lg-6 mb-4">
                         <div class="card info-card">
                             <div class="info-card-header">基本信息</div>
@@ -202,7 +210,6 @@
                         </div>
                     </div>
 
-                    <!-- 班主任信息 -->
                     <div class="col-lg-6 mb-4">
                         <div class="card info-card">
                             <div class="info-card-header">班主任信息</div>
@@ -210,6 +217,7 @@
                                 <c:if test="${empty classInfo or empty classInfo.classTeacherName}">
                                     <p class="empty-info-tip">暂未设置班主任。</p>
                                 </c:if>
+
                                 <c:if test="${not empty classInfo and not empty classInfo.classTeacherName}">
                                     <p><strong>班主任：</strong> ${classInfo.classTeacherName}</p>
                                 </c:if>
@@ -218,7 +226,6 @@
                     </div>
                 </div>
 
-                <!-- 学习概况：雷达图 + GPA 折线图 -->
                 <div class="row">
                     <div class="col-lg-6 mb-4">
                         <div class="chart-card">
@@ -226,8 +233,10 @@
                                 <span>课程成绩雷达图</span>
                                 <small>展示主要课程的平均分</small>
                             </div>
+
                             <div class="chart-card-body">
                                 <div id="courseRadarChart" class="chart-container"></div>
+
                                 <c:if test="${empty radarData}">
                                     <p class="empty-info-tip mt-2">暂未查询到课程成绩，无法生成雷达图。</p>
                                 </c:if>
@@ -239,27 +248,35 @@
                         <div class="chart-card">
                             <div class="chart-card-header">
                                 <span>GPA 走势折线图</span>
-                                <small>展示最近四个学期的 GPA 变化</small>
+                                <small>根据最新成绩动态计算</small>
                             </div>
+
                             <div class="chart-card-body">
                                 <div id="gpaLineChart" class="chart-container"></div>
-                                <c:if test="${empty gpaByTerm}">
+
+                                <c:if test="${(empty gpaTermList or empty gpaValueList) and empty gpaByTerm}">
                                     <p class="empty-info-tip mt-2">暂未查询到 GPA 数据，无法生成折线图。</p>
+                                </c:if>
+
+                                <c:if test="${not ((empty gpaTermList or empty gpaValueList) and empty gpaByTerm)}">
+                                    <div class="gpa-explain">
+                                        绩点计算方式：课程绩点 = (成绩 - 50) / 10，60 分以下为 0，最高不超过 5.0。
+                                        每学期 GPA = Σ（课程绩点 × 学分） / Σ 学分。
+                                    </div>
                                 </c:if>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </c:if>
         </div>
     </div>
 </div>
 
 <script type="text/javascript">
-    // 从 JSP 注入雷达图数据
     var radarCourseNames = [];
     var radarScores = [];
+
     <c:if test="${not empty radarData}">
     <c:forEach var="entry" items="${radarData}">
     radarCourseNames.push("${entry.key}");
@@ -267,10 +284,30 @@
     </c:forEach>
     </c:if>
 
-    // GPA 折线图数据
+    /*
+     * GPA 数据兼容两种后端传法：
+     * 1. 新写法：gpaTermList + gpaValueList
+     * 2. 旧写法：gpaByTerm
+     */
     var gpaTerms = [];
     var gpaValues = [];
-    <c:if test="${not empty gpaByTerm}">
+
+    <c:choose>
+    <c:when test="${not empty gpaTermList and not empty gpaValueList}">
+    <c:forEach var="term" items="${gpaTermList}" varStatus="s">
+    gpaTerms.push("${term}");
+    <c:choose>
+    <c:when test="${gpaValueList[s.index] != null}">
+    gpaValues.push(${gpaValueList[s.index]});
+    </c:when>
+    <c:otherwise>
+    gpaValues.push(null);
+    </c:otherwise>
+    </c:choose>
+    </c:forEach>
+    </c:when>
+
+    <c:when test="${not empty gpaByTerm}">
     <c:forEach var="entry" items="${gpaByTerm}">
     gpaTerms.push("${entry.key}");
     <c:choose>
@@ -282,45 +319,64 @@
     </c:otherwise>
     </c:choose>
     </c:forEach>
-    </c:if>
+    </c:when>
+    </c:choose>
 
-    // 初始化雷达图
     (function () {
         var dom = document.getElementById('courseRadarChart');
-        if (!dom || radarCourseNames.length === 0) return;
+
+        if (!dom || radarCourseNames.length === 0) {
+            return;
+        }
 
         var chart = echarts.init(dom);
 
-        // 计算最大刻度（取最大分数向上取整到10的倍数）
         var maxScore = 0;
         for (var i = 0; i < radarScores.length; i++) {
             if (radarScores[i] > maxScore) {
                 maxScore = radarScores[i];
             }
         }
-        var radarMax = Math.max(60, Math.ceil(maxScore / 10) * 10); // 至少 60
+
+        var radarMax = Math.max(60, Math.ceil(maxScore / 10) * 10);
 
         var indicators = [];
         for (var j = 0; j < radarCourseNames.length; j++) {
-            indicators.push({ name: radarCourseNames[j], max: radarMax });
+            indicators.push({
+                name: radarCourseNames[j],
+                max: radarMax
+            });
         }
 
         var option = {
             tooltip: {
-                trigger: 'item'
+                trigger: 'item',
+                backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                borderWidth: 0,
+                textStyle: {
+                    color: '#ffffff',
+                    fontSize: 13
+                }
             },
+
             radar: {
                 indicator: indicators,
                 radius: '65%',
                 splitNumber: 5,
                 splitLine: {
-                    lineStyle: { color: '#e5e7eb' }
+                    lineStyle: {
+                        color: '#e5e7eb'
+                    }
                 },
                 splitArea: {
-                    areaStyle: { color: ['#ffffff', '#f9fafb'] }
+                    areaStyle: {
+                        color: ['#ffffff', '#f9fafb']
+                    }
                 },
                 axisLine: {
-                    lineStyle: { color: '#e5e7eb' }
+                    lineStyle: {
+                        color: '#e5e7eb'
+                    }
                 },
                 name: {
                     textStyle: {
@@ -329,6 +385,7 @@
                     }
                 }
             },
+
             series: [{
                 type: 'radar',
                 data: [{
@@ -351,56 +408,81 @@
         };
 
         chart.setOption(option);
+
         window.addEventListener('resize', function () {
             chart.resize();
         });
     })();
 
-    // 初始化 GPA 折线图
     (function () {
         var dom = document.getElementById('gpaLineChart');
-        if (!dom || gpaTerms.length === 0) return;
+
+        if (!dom || gpaTerms.length === 0) {
+            return;
+        }
 
         var chart = echarts.init(dom);
 
         var option = {
             tooltip: {
                 trigger: 'axis',
+                backgroundColor: 'rgba(15, 23, 42, 0.92)',
+                borderWidth: 0,
+                padding: 10,
+                textStyle: {
+                    color: '#ffffff',
+                    fontSize: 13
+                },
                 formatter: function (params) {
                     var p = params[0];
+
                     if (p.value == null) {
-                        return p.name + '<br/>暂未计算 GPA';
+                        return p.name + '<br/>GPA：暂无';
                     }
-                    return p.name + '<br/>GPA：' + p.value.toFixed(2);
-                },
-                backgroundColor: 'rgba(255,255,255,0.95)',
-                borderColor: '#e5e7eb',
-                borderWidth: 1,
-                padding: 10
-            },
-            grid: {
-                left: '6%',
-                right: '4%',
-                bottom: '10%',
-                top: '10%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: gpaTerms,
-                axisLine: { lineStyle: { color: '#d1d5db' } },
-                axisTick: { alignWithLabel: true },
-                axisLabel: {
-                    fontSize: 11,
-                    color: '#4b5563'
+
+                    return p.name + '<br/>GPA：' + Number(p.value).toFixed(2);
                 }
             },
+
+            grid: {
+                left: '6%',
+                right: '5%',
+                bottom: '12%',
+                top: '12%',
+                containLabel: true
+            },
+
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: gpaTerms,
+                axisLine: {
+                    lineStyle: {
+                        color: '#cbd5e1'
+                    }
+                },
+                axisTick: {
+                    show: false
+                },
+                axisLabel: {
+                    fontSize: 11,
+                    color: '#4b5563',
+                    rotate: gpaTerms.length > 5 ? 25 : 0
+                }
+            },
+
             yAxis: {
                 type: 'value',
                 name: 'GPA',
                 min: 0,
-                max: 4.5,
-                splitLine: { lineStyle: { color: '#e5e7eb' } },
+                max: 5,
+                interval: 1,
+                splitLine: {
+                    lineStyle: {
+                        color: '#e5e7eb',
+                        type: 'dashed'
+                    }
+                },
                 axisLabel: {
                     fontSize: 11,
                     color: '#4b5563'
@@ -411,6 +493,7 @@
                     padding: [0, 0, 6, 0]
                 }
             },
+
             series: [{
                 name: 'GPA',
                 type: 'line',
@@ -418,21 +501,53 @@
                 connectNulls: false,
                 smooth: true,
                 symbol: 'circle',
-                symbolSize: 5,
-                itemStyle: {
+                symbolSize: 8,
+                lineStyle: {
+                    width: 4,
                     color: '#2563eb'
                 },
-                lineStyle: {
-                    width: 2,
-                    color: '#2563eb'
+                itemStyle: {
+                    color: '#2563eb',
+                    borderColor: '#ffffff',
+                    borderWidth: 2
                 },
                 areaStyle: {
-                    color: 'rgba(37, 99, 235, 0.12)'
+                    color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 0,
+                        y2: 1,
+                        colorStops: [
+                            {
+                                offset: 0,
+                                color: 'rgba(37, 99, 235, 0.24)'
+                            },
+                            {
+                                offset: 1,
+                                color: 'rgba(37, 99, 235, 0.02)'
+                            }
+                        ]
+                    }
+                },
+                label: {
+                    show: true,
+                    position: 'top',
+                    color: '#1e3a8a',
+                    fontSize: 11,
+                    formatter: function (params) {
+                        if (params.value == null) {
+                            return '';
+                        }
+
+                        return Number(params.value).toFixed(2);
+                    }
                 }
             }]
         };
 
         chart.setOption(option);
+
         window.addEventListener('resize', function () {
             chart.resize();
         });

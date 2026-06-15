@@ -11,7 +11,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * 学生首页：基本信息 + 班主任信息 + 成绩雷达图 & GPA 折线图
@@ -27,6 +28,8 @@ public class StudentHomeServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        req.setCharacterEncoding("UTF-8");
+
         HttpSession session = req.getSession(false);
         if (session == null) {
             resp.sendRedirect(req.getContextPath() + "/login");
@@ -40,6 +43,7 @@ public class StudentHomeServlet extends HttpServlet {
         }
 
         Student student = studentDao.findByUserId(currentUser.getUserId());
+
         ClassInfo classInfo = null;
         if (student != null) {
             classInfo = classDao.findById(student.getClassId());
@@ -48,21 +52,41 @@ public class StudentHomeServlet extends HttpServlet {
         req.setAttribute("student", student);
         req.setAttribute("classInfo", classInfo);
 
-        // ===== 新增：如果有学生信息，就查询成绩统计，用于图表 =====
         if (student != null) {
             int studentId = student.getStudentId();
 
-            // 1) 雷达图数据：取前 6 门课程的平均分
+            /*
+             * 1. 雷达图数据
+             * 仍然使用原来的方法，展示主要课程平均分。
+             */
             Map<String, Double> radarData =
                     studentGradeDao.findCourseRadarData(studentId, 6);
 
-            // 2) GPA 折线图数据：你已有四个学期的方法，用同样学期列表
-            List<String> terms = Arrays.asList("2022-1", "2022-2", "2023-1", "2023-2");
-            Map<String, Double> gpaByTerm =
-                    studentGradeDao.findGpaByTerms(studentId, terms);
-
             req.setAttribute("radarData", radarData);
-            req.setAttribute("gpaByTerm", gpaByTerm);
+
+            /*
+             * 2. GPA 走势数据
+             * 不再写死 2022-1、2022-2、2023-1、2023-2。
+             * 改成从 student_course_grade 表中动态读取所有已有学期。
+             *
+             * GPA 计算公式在 StudentGradeDao.findGpaTrendByStudentId() 里：
+             * 每学期 GPA = Σ（课程绩点 × 学分） / Σ 学分
+             */
+            Map<String, Double> gpaMap =
+                    studentGradeDao.findGpaTrendByStudentId(studentId);
+
+            /*
+             * 兼容旧 JSP：
+             * 你的 home.jsp 原来读取的是 gpaByTerm。
+             */
+            req.setAttribute("gpaByTerm", gpaMap);
+
+            /*
+             * 兼容新 ECharts JSP：
+             * 如果你后面把图表改成 gpaTermList / gpaValueList，也能直接用。
+             */
+            req.setAttribute("gpaTermList", new ArrayList<>(gpaMap.keySet()));
+            req.setAttribute("gpaValueList", new ArrayList<>(gpaMap.values()));
         }
 
         req.getRequestDispatcher("/WEB-INF/jsp/student/home.jsp").forward(req, resp);

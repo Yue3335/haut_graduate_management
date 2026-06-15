@@ -1,7 +1,9 @@
 package edu.haut.gradms.web.controller.student;
 
+import edu.haut.gradms.dao.EmploymentInfoDao;
 import edu.haut.gradms.dao.StudentDao;
 import edu.haut.gradms.dao.SubmissionDao;
+import edu.haut.gradms.model.EmploymentInfo;
 import edu.haut.gradms.model.Student;
 import edu.haut.gradms.model.User;
 import jakarta.servlet.ServletException;
@@ -18,6 +20,7 @@ import java.util.List;
 @WebServlet("/student/submission/status")
 public class StudentSubmissionStatusServlet extends HttpServlet {
 
+    private final EmploymentInfoDao employmentInfoDao = new EmploymentInfoDao();
     private final SubmissionDao submissionDao = new SubmissionDao();
     private final StudentDao studentDao = new StudentDao();
 
@@ -43,8 +46,11 @@ public class StudentSubmissionStatusServlet extends HttpServlet {
         List<SubmissionDao.SubmissionItem> list =
                 submissionDao.findByStudentId(stu.getStudentId());
 
-        req.setAttribute("submissionList", list);
+        List<EmploymentInfo> employmentList =
+                employmentInfoDao.findAllByStudentId(stu.getStudentId());
 
+        req.setAttribute("employmentList", employmentList);
+        req.setAttribute("submissionList", list);
         req.getRequestDispatcher("/WEB-INF/jsp/student/submission_status.jsp")
                 .forward(req, resp);
     }

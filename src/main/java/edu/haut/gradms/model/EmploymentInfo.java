@@ -24,6 +24,105 @@ public class EmploymentInfo extends Student {
     /** 审核备注 */
     private String reviewRemark;
 
+    private String reviewStage;
+
+
+    public String getSupervisorStatus() {
+        return supervisorStatus;
+    }
+
+    public void setSupervisorStatus(String supervisorStatus) {
+        this.supervisorStatus = supervisorStatus;
+    }
+
+    private String supervisorStatus;
+
+    public String getClassTeacherStatus() {
+        return classTeacherStatus;
+    }
+
+    public String getCounselorStatus() {
+        return counselorStatus;
+    }
+
+    public void setCounselorStatus(String counselorStatus) {
+        this.counselorStatus = counselorStatus;
+    }
+
+    public void setClassTeacherStatus(String classTeacherStatus) {
+        this.classTeacherStatus = classTeacherStatus;
+    }
+
+    private String classTeacherStatus;
+    private String counselorStatus;
+
+    public String getSupervisorRemark() {
+        return supervisorRemark;
+    }
+
+    public void setSupervisorRemark(String supervisorRemark) {
+        this.supervisorRemark = supervisorRemark;
+    }
+
+    public String getClassTeacherRemark() {
+        return classTeacherRemark;
+    }
+
+    public void setClassTeacherRemark(String classTeacherRemark) {
+        this.classTeacherRemark = classTeacherRemark;
+    }
+
+    private String supervisorRemark;
+    private String classTeacherRemark;
+    private String counselorRemark;
+
+    private Date supervisorReviewTime;
+    private Date classTeacherReviewTime;
+
+    public Date getClassTeacherReviewTime() {
+        return classTeacherReviewTime;
+    }
+
+    public void setClassTeacherReviewTime(Date classTeacherReviewTime) {
+        this.classTeacherReviewTime = classTeacherReviewTime;
+    }
+
+    public Date getSupervisorReviewTime() {
+        return supervisorReviewTime;
+    }
+
+    public void setSupervisorReviewTime(Date supervisorReviewTime) {
+        this.supervisorReviewTime = supervisorReviewTime;
+    }
+
+    public Date getCounselorReviewTime() {
+        return counselorReviewTime;
+    }
+
+    public void setCounselorReviewTime(Date counselorReviewTime) {
+        this.counselorReviewTime = counselorReviewTime;
+    }
+
+    private Date counselorReviewTime;
+
+
+
+    public String getReviewStage() {
+        return reviewStage;
+    }
+
+    public void setReviewStage(String reviewStage) {
+        this.reviewStage = reviewStage;
+    }
+
+    public String getCounselorRemark() {
+        return counselorRemark;
+    }
+
+    public void setCounselorRemark(String counselorRemark) {
+        this.counselorRemark = counselorRemark;
+    }
+
     public int getEmploymentId() {
         return employmentId;
     }

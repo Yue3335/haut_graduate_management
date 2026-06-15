@@ -93,5 +93,11 @@
       成绩及发展建议
     </a>
 
+    <a href="${pageContext.request.contextPath}/student/mock-interview"
+       class="list-group-item list-group-item-action">
+      <i class="fa fa-video-camera me-2"></i>
+      AI 模拟面试
+    </a>
+
   </div>
 </div>

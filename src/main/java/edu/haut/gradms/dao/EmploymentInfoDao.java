@@ -9,10 +9,221 @@ import java.util.List;
 
 public class EmploymentInfoDao {
 
+    public static final String ROLE_SUPERVISOR = "SUPERVISOR";
+    public static final String ROLE_CLASS_TEACHER = "CLASS_TEACHER";
+    public static final String ROLE_COUNSELOR = "COUNSELOR";
+
+    public List<EmploymentInfo> findLatestForReviewer(int reviewerUserId, String reviewerRole) {
+        List<EmploymentInfo> list = new ArrayList<>();
+
+        String joinSql;
+        String stage;
+
+        if (ROLE_SUPERVISOR.equals(reviewerRole)) {
+            joinSql = "JOIN student_supervisor ss ON ss.student_id = s.student_id AND ss.supervisor_user_id = ? ";
+            stage = ROLE_SUPERVISOR;
+        } else if (ROLE_CLASS_TEACHER.equals(reviewerRole)) {
+            joinSql = "JOIN class c ON c.class_id = s.class_id AND c.class_teacher_user_id = ? ";
+            stage = ROLE_CLASS_TEACHER;
+        } else if (ROLE_COUNSELOR.equals(reviewerRole)) {
+            joinSql = "JOIN student_counselor sc ON sc.student_id = s.student_id AND sc.counselor_user_id = ? ";
+            stage = ROLE_COUNSELOR;
+        } else {
+            return list;
+        }
+
+        String sql = "SELECT e.*, s.student_no " +
+                "FROM employment_info e " +
+                "JOIN ( " +
+                "    SELECT student_id, MAX(employment_id) AS max_id " +
+                "    FROM employment_info " +
+                "    GROUP BY student_id " +
+                ") t ON e.student_id = t.student_id AND e.employment_id = t.max_id " +
+                "JOIN student s ON s.student_id = e.student_id " +
+                joinSql +
+                "WHERE e.review_stage = ? AND e.review_status = 'PENDING' " +
+                "ORDER BY e.report_time DESC, e.employment_id DESC";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, reviewerUserId);
+            ps.setString(2, stage);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("查询当前审核人待审核就业记录失败", e);
+        }
+
+        return list;
+    }
+
+
+    public boolean reviewByRole(int employmentId,
+                                int reviewerUserId,
+                                String reviewerRole,
+                                String action,
+                                String reviewRemark) {
+        if (!"APPROVED".equals(action) && !"REJECTED".equals(action)) {
+            return false;
+        }
+
+        try (Connection conn = DBUtil.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try {
+                EmploymentInfo current = findReviewableForUpdate(conn, employmentId, reviewerUserId, reviewerRole);
+                if (current == null) {
+                    conn.rollback();
+                    return false;
+                }
+
+                if ("APPROVED".equals(action)) {
+                    approveCurrentStage(conn, employmentId, current.getStudentId(), reviewerRole, reviewRemark);
+                } else {
+                    rejectCurrentStage(conn, employmentId, current.getStudentId(), reviewerRole, reviewRemark);
+                }
+
+                conn.commit();
+                return true;
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("链式审核失败", e);
+        }
+    }
+
+    private EmploymentInfo findReviewableForUpdate(Connection conn,
+                                                   int employmentId,
+                                                   int reviewerUserId,
+                                                   String reviewerRole) throws SQLException {
+        String joinSql;
+        String stage;
+
+        if (ROLE_SUPERVISOR.equals(reviewerRole)) {
+            joinSql = "JOIN student_supervisor ss ON ss.student_id = s.student_id AND ss.supervisor_user_id = ? ";
+            stage = ROLE_SUPERVISOR;
+        } else if (ROLE_CLASS_TEACHER.equals(reviewerRole)) {
+            joinSql = "JOIN class c ON c.class_id = s.class_id AND c.class_teacher_user_id = ? ";
+            stage = ROLE_CLASS_TEACHER;
+        } else if (ROLE_COUNSELOR.equals(reviewerRole)) {
+            joinSql = "JOIN student_counselor sc ON sc.student_id = s.student_id AND sc.counselor_user_id = ? ";
+            stage = ROLE_COUNSELOR;
+        } else {
+            return null;
+        }
+
+        String sql = "SELECT e.*, s.student_no " +
+                "FROM employment_info e " +
+                "JOIN student s ON s.student_id = e.student_id " +
+                joinSql +
+                "WHERE e.employment_id = ? " +
+                "  AND e.review_stage = ? " +
+                "  AND e.review_status = 'PENDING' " +
+                "FOR UPDATE";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewerUserId);
+            ps.setInt(2, employmentId);
+            ps.setString(3, stage);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    private void approveCurrentStage(Connection conn,
+                                     int employmentId,
+                                     int studentId,
+                                     String reviewerRole,
+                                     String remark) throws SQLException {
+        String sql;
+
+        if (ROLE_SUPERVISOR.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "supervisor_status = 'APPROVED', supervisor_remark = ?, supervisor_review_time = NOW(), " +
+                    "class_teacher_status = 'PENDING', review_stage = 'CLASS_TEACHER', " +
+                    "review_status = 'PENDING', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else if (ROLE_CLASS_TEACHER.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "class_teacher_status = 'APPROVED', class_teacher_remark = ?, class_teacher_review_time = NOW(), " +
+                    "counselor_status = 'PENDING', review_stage = 'COUNSELOR', " +
+                    "review_status = 'PENDING', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else if (ROLE_COUNSELOR.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "counselor_status = 'APPROVED', counselor_remark = ?, counselor_review_time = NOW(), " +
+                    "review_stage = 'DONE', review_status = 'APPROVED', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else {
+            return;
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, remark);
+            ps.setString(2, remark);
+            ps.setInt(3, employmentId);
+            ps.executeUpdate();
+        }
+    }
+
+
+    private void rejectCurrentStage(Connection conn,
+                                    int employmentId,
+                                    int studentId,
+                                    String reviewerRole,
+                                    String remark) throws SQLException {
+        String sql;
+
+        if (ROLE_SUPERVISOR.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "supervisor_status = 'REJECTED', supervisor_remark = ?, supervisor_review_time = NOW(), " +
+                    "review_stage = 'DONE', review_status = 'REJECTED', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else if (ROLE_CLASS_TEACHER.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "class_teacher_status = 'REJECTED', class_teacher_remark = ?, class_teacher_review_time = NOW(), " +
+                    "review_stage = 'DONE', review_status = 'REJECTED', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else if (ROLE_COUNSELOR.equals(reviewerRole)) {
+            sql = "UPDATE employment_info SET " +
+                    "counselor_status = 'REJECTED', counselor_remark = ?, counselor_review_time = NOW(), " +
+                    "review_stage = 'DONE', review_status = 'REJECTED', review_remark = ? " +
+                    "WHERE employment_id = ?";
+        } else {
+            return;
+        }
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, remark);
+            ps.setString(2, remark);
+            ps.setInt(3, employmentId);
+            ps.executeUpdate();
+        }
+    }
+
     private EmploymentInfo mapRow(ResultSet rs) throws SQLException {
         EmploymentInfo e = new EmploymentInfo();
+
         e.setEmploymentId(rs.getInt("employment_id"));
         e.setStudentId(rs.getInt("student_id"));
+
+        // 基础信息
         e.setStatus(rs.getString("status"));
         e.setCompanyName(rs.getString("company_name"));
         e.setPosition(rs.getString("position"));
@@ -20,8 +231,21 @@ public class EmploymentInfoDao {
         e.setSalaryMonth(rs.getBigDecimal("salary_month"));
         e.setReportTime(rs.getTimestamp("report_time"));
         e.setRemark(rs.getString("remark"));
-        e.setReviewStatus(rs.getString("review_status"));
-        e.setReviewRemark(rs.getString("review_remark"));
+
+        // 审核信息（核心保留）
+        try {
+            e.setReviewStatus(rs.getString("review_status"));
+        } catch (SQLException ignored) {}
+
+        try {
+            e.setReviewRemark(rs.getString("review_remark"));
+        } catch (SQLException ignored) {}
+
+        // 学生信息（可选字段，防止报错）
+        try {
+            e.setStudentNo(rs.getString("student_no"));
+        } catch (SQLException ignored) {}
+
         return e;
     }
 
@@ -29,23 +253,30 @@ public class EmploymentInfoDao {
      * 普通 SQL：按学生ID查询最新一条就业记录
      */
     public EmploymentInfo findLatestByStudentId(int studentId) {
-        String sql = "SELECT * " +
-                "FROM employment_info " +
-                "WHERE student_id = ? " +
-                "ORDER BY report_time DESC, employment_id DESC " +
-                "LIMIT 1";
+
+        String sql = """
+        SELECT *
+        FROM employment_info
+        WHERE student_id = ?
+        ORDER BY employment_id DESC
+        LIMIT 1
+    """;
+
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, studentId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException("按学生ID查询最新就业去向失败", e);
+
+        } catch (Exception e) {
+            throw new RuntimeException("查询最新就业失败", e);
         }
+
         return null;
     }
 
@@ -160,8 +391,10 @@ public class EmploymentInfoDao {
      */
     public void insert(EmploymentInfo info) {
         String sql = "INSERT INTO employment_info " +
-                "(student_id, status, company_name, position, salary_month, city, report_time, remark, review_status, review_remark) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "(student_id, status, company_name, position, salary_month, city, report_time, remark, " +
+                " review_status, review_stage, review_remark, " +
+                " supervisor_status, class_teacher_status, counselor_status) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -177,18 +410,17 @@ public class EmploymentInfoDao {
                     : new java.sql.Timestamp(info.getReportTime().getTime()));
             ps.setString(8, info.getRemark());
 
-            // 关键：防止 review_status 为 null，设置默认值为 'PENDING'
-            String reviewStatus = info.getReviewStatus();
-            if (reviewStatus == null || reviewStatus.isEmpty()) {
-                reviewStatus = "PENDING";  // 待审核
-            }
-            ps.setString(9, reviewStatus);
+            // 新提交后，必须从指导老师开始
+            ps.setString(9, "PENDING");
+            ps.setString(10, "SUPERVISOR");
+            ps.setString(11, null);
 
-            ps.setString(10, info.getReviewRemark());
+            ps.setString(12, "PENDING"); // 指导老师待审核
+            ps.setString(13, "WAITING"); // 班主任未到达
+            ps.setString(14, "WAITING"); // 导员未到达
 
             ps.executeUpdate();
 
-            // 回写自增主键（可选）
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
                     info.setEmploymentId(rs.getInt(1));
@@ -219,6 +451,9 @@ public class EmploymentInfoDao {
             throw new RuntimeException("更新就业去向审核状态失败", e);
         }
     }
+
+
+
 
 
 }

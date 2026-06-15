@@ -1,6 +1,7 @@
 package edu.haut.gradms.web.controller.teacher;
 
 import edu.haut.gradms.dao.EmploymentInfoDao;
+import edu.haut.gradms.model.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -50,11 +51,44 @@ public class TeacherEmploymentReviewServlet extends HttpServlet {
             return;
         }
 
-        // 更新这条就业记录的审核状态和意见
-        employmentInfoDao.updateReviewStatus(employmentId, reviewStatus, reviewRemark);
+        User currentUser = (User) session.getAttribute("currentUser");
+        String reviewerRole = getCurrentReviewerRole(session);
 
+        boolean ok = employmentInfoDao.reviewByRole(
+                employmentId,
+                currentUser.getUserId(),
+                reviewerRole,
+                reviewStatus,
+                reviewRemark
+        );
+
+        if (!ok) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                    "审核失败：该记录可能不属于你，或尚未流转到你当前角色");
+            return;
+        }
         // 审核完成后，重定向回该学生的详情页，方便查看最新状态
         resp.sendRedirect(req.getContextPath()
                 + "/teacher/employment/detail?studentId=" + studentId);
     }
+
+
+
+    private String getCurrentReviewerRole(HttpSession session) {
+        if (Boolean.TRUE.equals(session.getAttribute("isSupervisor"))
+                || Boolean.TRUE.equals(session.getAttribute("isTeacher"))) {
+            return EmploymentInfoDao.ROLE_SUPERVISOR;
+        }
+
+        if (Boolean.TRUE.equals(session.getAttribute("isClassTeacher"))) {
+            return EmploymentInfoDao.ROLE_CLASS_TEACHER;
+        }
+
+        if (Boolean.TRUE.equals(session.getAttribute("isCounselor"))) {
+            return EmploymentInfoDao.ROLE_COUNSELOR;
+        }
+
+        return null;
+    }
+
 }

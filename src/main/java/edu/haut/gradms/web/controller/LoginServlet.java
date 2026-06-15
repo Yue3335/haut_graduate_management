@@ -48,6 +48,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("isClassTeacher", user.hasRole("CLASS_TEACHER"));  // 班主任
         session.setAttribute("isCounselor",    user.hasRole("COUNSELOR"));      // 辅导员
         session.setAttribute("isAdmin",        user.hasRole("ADMIN"));
+        session.setAttribute("isSupervisor", user.hasRole("SUPERVISOR"));
         // =======================================
 
         // ===== 登录成功后的统一跳转逻辑 =====

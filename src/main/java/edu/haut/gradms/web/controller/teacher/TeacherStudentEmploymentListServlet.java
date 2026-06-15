@@ -24,6 +24,37 @@ public class TeacherStudentEmploymentListServlet extends HttpServlet {
     private final EmploymentInfoDao employmentInfoDao = new EmploymentInfoDao();
     private final StudentDao studentDao = new StudentDao();
 
+
+    private String getCurrentReviewerRole(HttpSession session) {
+        if (Boolean.TRUE.equals(session.getAttribute("isSupervisor"))
+                || Boolean.TRUE.equals(session.getAttribute("isTeacher"))) {
+            return EmploymentInfoDao.ROLE_SUPERVISOR;
+        }
+
+        if (Boolean.TRUE.equals(session.getAttribute("isClassTeacher"))) {
+            return EmploymentInfoDao.ROLE_CLASS_TEACHER;
+        }
+
+        if (Boolean.TRUE.equals(session.getAttribute("isCounselor"))) {
+            return EmploymentInfoDao.ROLE_COUNSELOR;
+        }
+
+        return null;
+    }
+
+    private String getRoleLabel(String reviewerRole) {
+        if (EmploymentInfoDao.ROLE_SUPERVISOR.equals(reviewerRole)) {
+            return "指导老师待审核";
+        }
+        if (EmploymentInfoDao.ROLE_CLASS_TEACHER.equals(reviewerRole)) {
+            return "班主任待审核";
+        }
+        if (EmploymentInfoDao.ROLE_COUNSELOR.equals(reviewerRole)) {
+            return "导员待审核";
+        }
+        return "待审核";
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
@@ -40,8 +71,20 @@ public class TeacherStudentEmploymentListServlet extends HttpServlet {
             return;
         }
 
-        // 当前版本：全校所有学生最新就业记录
-        List<EmploymentInfo> latestList = employmentInfoDao.findLatestForAllStudents();
+        String reviewerRole = getCurrentReviewerRole(session);
+
+        if (reviewerRole == null) {
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN, "当前账号没有就业审核权限");
+            return;
+        }
+
+        List<EmploymentInfo> latestList = employmentInfoDao.findLatestForReviewer(
+                currentUser.getUserId(),
+                reviewerRole
+        );
+
+        req.setAttribute("latestEmploymentList", latestList);
+        req.setAttribute("scopeLabel", getRoleLabel(reviewerRole));
 
         // student_id -> Student 对象
         Map<Integer, Student> studentMap = new HashMap<>();

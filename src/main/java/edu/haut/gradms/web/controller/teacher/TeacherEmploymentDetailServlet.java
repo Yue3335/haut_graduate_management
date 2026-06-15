@@ -13,6 +13,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 教师端：查看某个学生的详细就业去向信息
@@ -26,6 +28,47 @@ public class TeacherEmploymentDetailServlet extends HttpServlet {
     private final UserDao userDao = new UserDao();
     private final EmploymentInfoDao employmentInfoDao = new EmploymentInfoDao();
     private final SubmissionDao submissionDao = new SubmissionDao();
+
+
+
+    private List<String> buildFlow(EmploymentInfo e) {
+
+        List<String> flow = new ArrayList<>();
+
+        flow.add("学生提交");
+
+        flow.add("SUPERVISOR");
+        flow.add("CLASS_TEACHER");
+        flow.add("COUNSELOR");
+        flow.add("完成");
+
+        return flow;
+    }
+
+    private int getCurrentStepIndex(EmploymentInfo e) {
+
+        if ("REJECTED".equals(e.getReviewStatus())) {
+            return -1;
+        }
+
+        if ("SUPERVISOR".equals(e.getReviewStage())) {
+            return 1;
+        }
+
+        if ("CLASS_TEACHER".equals(e.getReviewStage())) {
+            return 2;
+        }
+
+        if ("COUNSELOR".equals(e.getReviewStage())) {
+            return 3;
+        }
+
+        if ("DONE".equals(e.getReviewStage())) {
+            return 4;
+        }
+
+        return 0;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -83,5 +126,8 @@ public class TeacherEmploymentDetailServlet extends HttpServlet {
         req.getRequestDispatcher("/WEB-INF/jsp/teacher/employment_detail.jsp")
                 .forward(req, resp);
     }
+
+
+
 
 }
