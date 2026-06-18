@@ -77,5 +77,8 @@
 
     <!-- 引入自定义CSS（优先级高于基础样式） -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/static/css/custom.css">
+
+    <!-- 引入 GitHub-like 主题 CSS -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/github-like.css">
 </head>
 <body>
