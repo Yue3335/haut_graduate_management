@@ -94,12 +94,6 @@
             学生就业情况
         </a>
 
-        <a href="${pageContext.request.contextPath}/teacher/review/submissions"
-           class="list-group-item teacher-sidebar-item
-                  <c:if test='${pageContext.request.requestURI.contains("/teacher/review/submissions")}'>active</c:if>">
-            学生材料审批
-        </a>
-
         <a href="${pageContext.request.contextPath}/teacher/chat"
            class="list-group-item teacher-sidebar-item
                   <c:if test='${pageContext.request.requestURI.contains("/teacher/chat")}'>active</c:if>">

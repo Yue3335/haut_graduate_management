@@ -276,39 +276,43 @@
                             <div class="process-grid">
 
                                 <!-- 指导老师 -->
-                                <div class="process-step ${latestEmployment.reviewStage == 'SUPERVISOR' ? 'step-active' : ''}">
+                                <div class="process-step ${latestEmployment.reviewStage == 'SUPERVISOR' ? 'step-active' : (latestEmployment.reviewStage != 'SUPERVISOR' ? 'step-done' : '')}">
                                     <div class="process-step-title">1. 指导老师</div>
 
                                     <span class="status-pill
             ${latestEmployment.supervisorStatus == 'APPROVED' ? 'status-approved' :
               latestEmployment.supervisorStatus == 'REJECTED' ? 'status-rejected' :
-              latestEmployment.supervisorStatus == 'PENDING' ? 'status-pending' : 'status-waiting'}">
+              latestEmployment.reviewStage == 'SUPERVISOR' ? 'status-pending' : 'status-waiting'}">
 
                                             ${latestEmployment.supervisorStatus}
                                     </span>
                                 </div>
 
                                 <!-- 班主任 -->
-                                <div class="process-step ${latestEmployment.reviewStage == 'CLASS_TEACHER' ? 'step-active' : ''}">
+                                <div class="process-step ${latestEmployment.reviewStage == 'CLASS_TEACHER' ? 'step-active' :
+                               (latestEmployment.reviewStage == 'COUNSELOR' || latestEmployment.reviewStage == 'DONE' ? 'step-done' : '')}">
                                     <div class="process-step-title">2. 班主任</div>
 
                                     <span class="status-pill
             ${latestEmployment.classTeacherStatus == 'APPROVED' ? 'status-approved' :
               latestEmployment.classTeacherStatus == 'REJECTED' ? 'status-rejected' :
-              latestEmployment.classTeacherStatus == 'PENDING' ? 'status-pending' : 'status-waiting'}">
+              latestEmployment.reviewStage == 'CLASS_TEACHER' ? 'status-pending' :
+              (latestEmployment.reviewStage == 'COUNSELOR' || latestEmployment.reviewStage == 'DONE' ? 'status-approved' : 'status-waiting')}">
 
                                             ${latestEmployment.classTeacherStatus}
                                     </span>
                                 </div>
 
                                 <!-- 辅导员 -->
-                                <div class="process-step ${latestEmployment.reviewStage == 'COUNSELOR' ? 'step-active' : ''}">
+                                <div class="process-step ${latestEmployment.reviewStage == 'COUNSELOR' ? 'step-active' :
+                               (latestEmployment.reviewStage == 'DONE' ? 'step-done' : '')}">
                                     <div class="process-step-title">3. 辅导员</div>
 
                                     <span class="status-pill
             ${latestEmployment.counselorStatus == 'APPROVED' ? 'status-approved' :
               latestEmployment.counselorStatus == 'REJECTED' ? 'status-rejected' :
-              latestEmployment.counselorStatus == 'PENDING' ? 'status-pending' : 'status-waiting'}">
+              latestEmployment.reviewStage == 'COUNSELOR' ? 'status-pending' :
+              latestEmployment.reviewStage == 'DONE' ? 'status-approved' : 'status-waiting'}">
 
                                             ${latestEmployment.counselorStatus}
                                     </span>

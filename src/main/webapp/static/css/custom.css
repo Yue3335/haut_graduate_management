@@ -1,8 +1,8 @@
-/* 全局设计系统 - 毕业管理系统 */
+/* 全局设计系统 - 毕业管理系统【优化科研版】 */
 
-/* 1. 颜色变量定义 */
+/* 1. 颜色变量定义（学术冷调，低饱和科研配色） */
 :root {
-    /* 主色调 - 科技蓝 */
+    /* 主色调 - 专业科研蓝 */
     --primary-color: #2c5282;
     --primary-light: #3182ce;
     --primary-dark: #1a365d;
@@ -14,48 +14,55 @@
     --info-color: #4299e1;
     --purple-color: #805ad5;
     --green-color: #48bb78;
-    --yellow-color: #ecc94b;
-    --orange-color: #f6ad55;
 
-    /* 中性色 */
-    --bg-primary: #ffffff;
+    /* 中性色（弱化高饱和黄，适配学术场景） */
+    --yellow-color: #d6b850;
+    --orange-color: #e09745;
+
+    /* 页面背景层级 */
+    --bg-page: #f6f8fc;    /* 页面最外层背景（解决页面发白、左侧空白视觉刺眼） */
+    --bg-primary: #ffffff; /* 卡片/容器纯白底色 */
     --bg-secondary: #f8fafc;
     --bg-tertiary: #f1f5f9;
-    --bg-gradient-blue: linear-gradient(135deg, #ebf8ff 0%, #e6fffa 100%);
-    --bg-gradient-green: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
-    --bg-gradient-purple: linear-gradient(135deg, #faf5ff 0%, #e6fffa 100%);
 
-    --text-primary: #2d3748;
-    --text-secondary: #4a5568;
-    --text-muted: #718096;
+    /* 渐变（降低饱和度，去除艳色） */
+    --bg-gradient-blue: linear-gradient(135deg, #ebf8ff 0%, #f0f7ff 100%);
+    --bg-gradient-green: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+    --bg-gradient-purple: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+
+    /* 文字层级 */
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
     --text-light: #f7fafc;
 
-    --border-color: #e8eef4;
-    --border-hover: #d1e0f0;
+    /* 边框 */
+    --border-color: #e2e8f0;
+    --border-hover: #cbd5e1;
     --border-dashed: #cbd5e0;
 
-    /* 阴影 */
+    /* 阴影（轻量化，科研系统拒绝厚重阴影） */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 6px 18px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 8px 22px rgba(49, 130, 206, 0.07);
 
-    /* 圆角 */
+    /* 圆角统一规范 */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
     --radius-round: 50%;
 
-    /* 过渡 */
-    --transition: all 0.3s ease;
+    /* 过渡（统一柔和动画，不夸张） */
+    --transition: all 0.25s ease;
     --transition-fast: all 0.2s ease;
-    --transition-slow: all 0.5s ease;
+    --transition-slow: all 0.4s ease;
 
-    /* 图标颜色 */
+    /* 图标色系 */
     --icon-primary: #3182ce;
-    --icon-secondary: #4a5568;
-    --icon-muted: #a0aec0;
+    --icon-secondary: #475569;
+    --icon-muted: #94a3b8;
 }
 
 /* 2. 基础样式重置 */
@@ -67,9 +74,9 @@
 
 body {
     font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-    background-color: var(--bg-primary);
+    background-color: var(--bg-page); /* 页面外层浅灰，区分卡片白色 */
     color: var(--text-primary);
-    line-height: 1.6;
+    line-height: 1.65;
     padding-bottom: 40px;
 }
 
@@ -80,30 +87,12 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.3;
     margin-bottom: 1rem;
 }
-
-h1 {
-    font-size: 2rem;
-}
-
-h2 {
-    font-size: 1.75rem;
-}
-
-h3 {
-    font-size: 1.5rem;
-}
-
-h4 {
-    font-size: 1.25rem;
-}
-
-h5 {
-    font-size: 1.125rem;
-}
-
-h6 {
-    font-size: 1rem;
-}
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
 
 p {
     margin-bottom: 1rem;
@@ -116,10 +105,9 @@ a {
     text-decoration: none;
     transition: var(--transition);
 }
-
 a:hover {
     color: var(--primary-dark);
-    text-decoration: underline;
+    text-decoration: none; /* 管理后台取消下划线，更整洁 */
 }
 
 /* 5. 按钮样式系统 */
@@ -139,13 +127,10 @@ a:hover {
     position: relative;
     overflow: hidden;
 }
-
-/* 按钮图标样式 */
 .btn i {
     margin-right: 0.375rem;
     font-size: 0.875rem;
 }
-
 .btn i:last-child {
     margin-right: 0;
     margin-left: 0.375rem;
@@ -158,7 +143,6 @@ a:hover {
     border-color: var(--primary-light);
     box-shadow: var(--shadow-sm);
 }
-
 .btn-primary:hover {
     background-color: var(--primary-dark);
     border-color: var(--primary-dark);
@@ -166,7 +150,6 @@ a:hover {
     transform: translateY(-1px);
     color: white;
 }
-
 .btn-primary:active {
     transform: translateY(0);
     box-shadow: var(--shadow-sm);
@@ -179,7 +162,6 @@ a:hover {
     border-color: var(--text-secondary);
     box-shadow: var(--shadow-sm);
 }
-
 .btn-secondary:hover {
     background-color: var(--text-primary);
     border-color: var(--text-primary);
@@ -194,7 +176,6 @@ a:hover {
     border-color: var(--success-color);
     box-shadow: var(--shadow-sm);
 }
-
 .btn-success:hover {
     background-color: #2c7a7b;
     border-color: #2c7a7b;
@@ -209,7 +190,6 @@ a:hover {
     border-color: var(--warning-color);
     box-shadow: var(--shadow-sm);
 }
-
 .btn-warning:hover {
     background-color: #dd6b20;
     border-color: #dd6b20;
@@ -224,7 +204,6 @@ a:hover {
     border-color: var(--danger-color);
     box-shadow: var(--shadow-sm);
 }
-
 .btn-danger:hover {
     background-color: #c53030;
     border-color: #c53030;
@@ -238,7 +217,6 @@ a:hover {
     color: var(--primary-light);
     border-color: var(--primary-light);
 }
-
 .btn-outline-primary:hover {
     background-color: var(--bg-secondary);
     border-color: var(--primary-dark);
@@ -253,11 +231,9 @@ a:hover {
     box-shadow: none;
     padding: 0.25rem 0.5rem;
 }
-
 .btn-link:hover {
     background-color: transparent;
     color: var(--primary-dark);
-    text-decoration: underline;
 }
 
 /* 按钮尺寸 */
@@ -265,24 +241,20 @@ a:hover {
     padding: 0.375rem 0.75rem;
     font-size: 0.75rem;
 }
-
 .btn-lg {
     padding: 0.625rem 1.25rem;
     font-size: 1rem;
 }
-
-/* 按钮状态 */
 .btn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
     transform: none;
 }
-
 .btn:disabled:hover {
     box-shadow: none;
 }
 
-/* 6. 卡片样式 */
+/* 6. 卡片样式系统 */
 .card {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
@@ -293,7 +265,6 @@ a:hover {
     margin-bottom: 1.5rem;
     position: relative;
 }
-
 .card:hover {
     box-shadow: var(--shadow-hover);
     border-color: var(--border-hover);
@@ -311,23 +282,19 @@ a:hover {
     align-items: center;
     justify-content: space-between;
 }
-
 .card-header-title {
     margin: 0;
     padding: 0;
     font-size: 0.9375rem;
     font-weight: 500;
 }
-
 .card-header-icon {
     color: var(--icon-primary);
     font-size: 1rem;
 }
-
 .card-body {
     padding: 1.25rem;
 }
-
 .card-footer {
     background-color: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
@@ -339,38 +306,17 @@ a:hover {
     justify-content: space-between;
 }
 
-/* 卡片变体 */
-
 /* 渐变卡片 */
-.card-gradient-blue {
-    background: var(--bg-gradient-blue);
-    border: 1px solid var(--border-color);
-}
+.card-gradient-blue { background: var(--bg-gradient-blue); border: 1px solid var(--border-color); }
+.card-gradient-green { background: var(--bg-gradient-green); border: 1px solid var(--border-color); }
+.card-gradient-purple { background: var(--bg-gradient-purple); border: 1px solid var(--border-color); }
 
-.card-gradient-green {
-    background: var(--bg-gradient-green);
-    border: 1px solid var(--border-color);
-}
+/* 边框高亮卡片 */
+.card-border-primary { border: 2px solid var(--primary-light); }
+.card-border-success { border: 2px solid var(--success-color); }
+.card-border-warning { border: 2px solid var(--warning-color); }
 
-.card-gradient-purple {
-    background: var(--bg-gradient-purple);
-    border: 1px solid var(--border-color);
-}
-
-/* 带边框的卡片 */
-.card-border-primary {
-    border: 2px solid var(--primary-light);
-}
-
-.card-border-success {
-    border: 2px solid var(--success-color);
-}
-
-.card-border-warning {
-    border: 2px solid var(--warning-color);
-}
-
-/* 统计卡片 */
+/* 数据统计卡片 */
 .stat-card {
     background-color: var(--bg-primary);
     border: 1px solid var(--border-color);
@@ -380,34 +326,30 @@ a:hover {
     overflow: hidden;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    position: relative;
 }
-
 .stat-card:hover {
     box-shadow: var(--shadow-md);
     border-color: var(--border-hover);
     transform: translateY(-2px);
 }
-
 .stat-card-header {
     color: var(--text-muted);
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
 }
-
 .stat-card-value {
     color: var(--text-primary);
     font-size: 2rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
-
 .stat-card-description {
     color: var(--text-secondary);
     font-size: 0.875rem;
     line-height: 1.5;
 }
-
 .stat-card-icon {
     position: absolute;
     top: 1.5rem;
@@ -416,12 +358,9 @@ a:hover {
     color: var(--icon-muted);
     opacity: 0.3;
 }
-
-/* 悬浮卡片 */
 .card-hover-lift {
     transition: all 0.3s ease;
 }
-
 .card-hover-lift:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
@@ -442,28 +381,23 @@ a:hover {
     transition: var(--transition);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
 }
-
 .form-control:focus {
     border-color: var(--primary-light);
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.2), inset 0 1px 2px rgba(0, 0, 0, 0.03);
 }
-
 .form-control:hover {
     border-color: var(--border-hover);
 }
-
 .form-control::placeholder {
     color: var(--text-muted);
     opacity: 1;
 }
-
 .form-control:disabled {
     background-color: var(--bg-secondary);
     opacity: 0.7;
     cursor: not-allowed;
 }
-
 .form-label {
     display: block;
     margin-bottom: 0.5rem;
@@ -471,20 +405,17 @@ a:hover {
     font-weight: 500;
     color: var(--text-primary);
 }
-
 .form-group {
     margin-bottom: 1.25rem;
 }
 
-/* 表单组带有图标 */
+/* 带图标输入框 */
 .form-group-icon {
     position: relative;
 }
-
 .form-group-icon .form-control {
     padding-left: 2.5rem;
 }
-
 .form-group-icon i {
     position: absolute;
     left: 0.875rem;
@@ -493,29 +424,24 @@ a:hover {
     color: var(--icon-muted);
     font-size: 0.875rem;
 }
-
-/* 表单组带有帮助文本 */
 .form-group-help .help-text {
     margin-top: 0.375rem;
     font-size: 0.75rem;
     color: var(--text-muted);
 }
-
-/* 表单布局 */
 .form-row {
     display: flex;
     flex-wrap: wrap;
     margin-right: -0.625rem;
     margin-left: -0.625rem;
 }
-
 .form-row > .form-group {
     flex: 1;
     margin-right: 0.625rem;
     margin-left: 0.625rem;
 }
 
-/* 选择框样式 */
+/* 下拉选择框 */
 .custom-select {
     display: block;
     width: 100%;
@@ -534,21 +460,19 @@ a:hover {
     transition: var(--transition);
     appearance: none;
 }
-
 .custom-select:focus {
     border-color: var(--primary-light);
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(49, 130, 206, 0.2);
 }
 
-/* 复选框和单选按钮 */
+/* 复选框/单选框 */
 .custom-checkbox, .custom-radio {
     position: relative;
     display: block;
     margin-bottom: 0.5rem;
     padding-left: 1.75rem;
 }
-
 .custom-checkbox input[type="checkbox"],
 .custom-radio input[type="radio"] {
     position: absolute;
@@ -559,7 +483,6 @@ a:hover {
     opacity: 0;
     cursor: pointer;
 }
-
 .custom-checkbox .checkmark,
 .custom-radio .checkmark {
     position: absolute;
@@ -572,21 +495,15 @@ a:hover {
     background-color: var(--bg-primary);
     transition: var(--transition);
 }
-
-.custom-radio .checkmark {
-    border-radius: 50%;
-}
-
+.custom-radio .checkmark { border-radius: 50%; }
 .custom-checkbox input:checked ~ .checkmark {
     background-color: var(--primary-light);
     border-color: var(--primary-light);
 }
-
 .custom-radio input:checked ~ .checkmark {
     background-color: var(--primary-light);
     border-color: var(--primary-light);
 }
-
 .custom-checkbox .checkmark::after {
     content: "";
     position: absolute;
@@ -599,7 +516,6 @@ a:hover {
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
-
 .custom-radio .checkmark::after {
     content: "";
     position: absolute;
@@ -611,7 +527,6 @@ a:hover {
     border-radius: 50%;
     background: white;
 }
-
 .custom-checkbox input:checked ~ .checkmark::after,
 .custom-radio input:checked ~ .checkmark::after {
     display: block;
@@ -624,14 +539,11 @@ a:hover {
     color: var(--text-primary);
     border-collapse: collapse;
 }
-
-.table th,
-.table td {
+.table th, .table td {
     padding: 0.75rem;
     vertical-align: top;
     border-top: 1px solid var(--border-color);
 }
-
 .table thead th {
     vertical-align: bottom;
     border-bottom: 2px solid var(--border-color);
@@ -639,16 +551,10 @@ a:hover {
     font-weight: 500;
     color: var(--primary-dark);
 }
+.table tbody + tbody { border-top: 2px solid var(--border-color); }
+.table-hover tbody tr:hover { background-color: var(--bg-secondary); }
 
-.table tbody + tbody {
-    border-top: 2px solid var(--border-color);
-}
-
-.table-hover tbody tr:hover {
-    background-color: var(--bg-secondary);
-}
-
-/* 9. 警告框样式 */
+/* 9. 警告提示框 */
 .alert {
     position: relative;
     padding: 0.75rem 1.25rem;
@@ -657,66 +563,93 @@ a:hover {
     border-radius: var(--radius-md);
     font-size: 0.875rem;
 }
-
 .alert-primary {
     color: var(--primary-dark);
-    background-color: rgba(44, 82, 130, 0.1);
-    border-color: rgba(44, 82, 130, 0.3);
+    background-color: rgba(44, 82, 130, 0.08);
+    border-color: rgba(44, 82, 130, 0.25);
 }
-
 .alert-success {
     color: #22543d;
-    background-color: rgba(56, 178, 172, 0.1);
-    border-color: rgba(56, 178, 172, 0.3);
+    background-color: rgba(56, 178, 172, 0.08);
+    border-color: rgba(56, 178, 172, 0.25);
 }
-
 .alert-warning {
     color: #744210;
-    background-color: rgba(237, 137, 54, 0.1);
-    border-color: rgba(237, 137, 54, 0.3);
+    background-color: rgba(237, 137, 54, 0.08);
+    border-color: rgba(237, 137, 54, 0.25);
 }
-
 .alert-danger {
     color: #742a2a;
-    background-color: rgba(229, 62, 62, 0.1);
-    border-color: rgba(229, 62, 62, 0.3);
+    background-color: rgba(229, 62, 62, 0.08);
+    border-color: rgba(229, 62, 62, 0.25);
 }
 
-/* 10. 布局辅助类 */
-.container {
-    max-width: 1200px;
+/* ============================================== */
+/* 新增核心：分栏布局修复，解决左侧侧边栏大片空白 */
+/* ==============================================
+  配合页面 <div class="row g-4"> + col-lg-3侧边栏 + col-lg-9主内容
+  给左侧列开启flex等高，菜单卡片自动拉伸填满高度
+*/
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch; /* 强制左右栅格列等高，消除空白 */
 }
-
-/* 11. 文本样式 */
-.text-primary {
+.sidebar-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: 100%;
+}
+/* 侧边菜单卡片自动拉伸填充剩余高度 */
+.admin-sidebar-group {
+    flex: 1;
+}
+/* 侧边菜单通用样式（和全局变量统一） */
+.admin-sidebar-item {
+    border: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    transition: var(--transition);
+    color: var(--text-secondary);
+    border-left: 3px solid transparent;
+    background-color: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.admin-sidebar-item.active {
+    background-color: var(--bg-gradient-blue);
+    border-left-color: var(--primary-light);
+    font-weight: 500;
     color: var(--primary-dark);
 }
-
-.text-secondary {
-    color: var(--text-secondary);
+.admin-sidebar-item:not(.active):hover {
+    background-color: var(--bg-secondary);
+    border-left-color: var(--primary-light);
+    color: var(--primary-light);
+    padding-left: 25px;
+}
+.admin-sidebar-item + .admin-sidebar-item {
+    border-top: 1px solid var(--border-color);
 }
 
-.text-muted {
-    color: var(--text-muted);
+/* 10. 布局容器辅助类 */
+.container {
+    max-width: 1480px;
+    padding: 0 1rem;
 }
 
-.text-sm {
-    font-size: 0.875rem;
-}
+/* 11. 文本工具类 */
+.text-primary { color: var(--primary-dark); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-sm { font-size: 0.875rem; }
+.text-lg { font-size: 1.125rem; }
+.font-weight-medium { font-weight: 500; }
+.font-weight-semibold { font-weight: 600; }
 
-.text-lg {
-    font-size: 1.125rem;
-}
-
-.font-weight-medium {
-    font-weight: 500;
-}
-
-.font-weight-semibold {
-    font-weight: 600;
-}
-
-/* 12. 间距辅助类 */
+/* 12. 统一间距工具类 */
 .mb-0 { margin-bottom: 0; }
 .mb-1 { margin-bottom: 0.25rem; }
 .mb-2 { margin-bottom: 0.5rem; }
@@ -731,216 +664,74 @@ a:hover {
 .mt-4 { margin-top: 1.5rem; }
 .mt-5 { margin-top: 2rem; }
 
-/* 13. 动画效果 */
+/* 13. 全局动画 */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
 }
+.fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.slide-in { animation: slideIn 0.5s ease-out forwards; }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-}
-
-.slide-in {
-    animation: slideIn 0.5s ease-out forwards;
-}
-
-/* 14. 响应式设计 */
-
-/* 大屏幕 */
+/* 14. 完整响应式适配 */
+/* 大屏 >=1200px */
 @media (min-width: 1200px) {
-    .container {
-        max-width: 1140px;
-    }
+    .container { max-width: 1400px; }
 }
 
-/* 中等屏幕 */
+/* 中屏 <1200px */
 @media (max-width: 1199.98px) {
-    .container {
-        max-width: 100%;
-    }
-
-    /* 减少导航栏项的间距 */
-    .navbar-nav .nav-item {
-        margin-right: 0.5rem;
-    }
+    .container { max-width: 100%; }
 }
 
-/* 平板设备 */
+/* 平板 <992px：分栏自动堆叠，彻底无空白 */
 @media (max-width: 991.98px) {
-    /* 调整布局 */
-    .col-md-6 {
+    .sidebar-col {
         margin-bottom: 1.5rem;
+        height: auto;
     }
-
-    /* 调整表格显示 */
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    /* 调整按钮大小 */
-    .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-    }
-
-    /* 调整卡片间距 */
-    .card {
-        margin-bottom: 1.5rem;
-    }
+    .col-md-6 { margin-bottom: 1.5rem; }
+    .table-responsive { overflow-x: auto; }
 }
 
-/* 小平板设备 */
+/* 小平板 <768px */
 @media (max-width: 767.98px) {
-    /* 调整基础样式 */
-    body {
-        font-size: 0.875rem;
-    }
-
-    /* 调整标题大小 */
+    body { font-size: 0.875rem; }
     h1 { font-size: 1.75rem; }
     h2 { font-size: 1.5rem; }
     h3 { font-size: 1.25rem; }
     h4 { font-size: 1.125rem; }
     h5 { font-size: 1rem; }
     h6 { font-size: 0.875rem; }
-
-    /* 调整卡片内边距 */
-    .card-body {
-        padding: 1rem;
-    }
-
-    .card-header,
-    .card-footer {
-        padding: 0.75rem 1rem;
-    }
-
-    /* 调整按钮大小 */
-    .btn {
-        padding: 0.4375rem 0.875rem;
-        font-size: 0.8125rem;
-    }
-
-    /* 调整表单样式 */
-    .form-control {
-        padding: 0.5rem 0.75rem;
-    }
-
+    .card-body { padding: 1rem; }
+    .card-header, .card-footer { padding: 0.75rem 1rem; }
     .form-row > .form-group {
         margin-right: 0;
         margin-left: 0;
         margin-bottom: 0.75rem;
         flex: 100%;
     }
-
-    /* 调整登录页面布局 */
-    .login-container {
-        flex-direction: column;
-    }
-
-    .login-info,
-    .login-form {
-        flex: 100%;
-        max-width: 100%;
-    }
-
-    .login-info {
-        margin-bottom: 1.5rem;
-    }
 }
 
-/* 手机设备 */
+/* 手机 <576px */
 @media (max-width: 575.98px) {
-    /* 调整容器内边距 */
-    .container {
-        padding: 0 1rem;
-    }
-
-    /* 调整卡片样式 */
-    .card {
-        margin-bottom: 1rem;
-        border-radius: var(--radius-md);
-    }
-
-    .card-header,
-    .card-body,
-    .card-footer {
-        padding: 0.75rem 1rem;
-    }
-
-    /* 调整标题大小 */
+    .container { padding: 0 0.75rem; }
+    .card { margin-bottom: 1rem; border-radius: var(--radius-md); }
     h1 { font-size: 1.5rem; }
     h2 { font-size: 1.375rem; }
     h3 { font-size: 1.125rem; }
-
-    /* 调整导航栏 */
-    .navbar-nav .nav-item {
-        margin-right: 0;
-        margin-bottom: 0.25rem;
-    }
-
-    /* 调整统计卡片 */
-    .stats-card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    /* 调整按钮样式 */
-    .btn {
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-
-    /* 调整间距 */
-    .mb-3 { margin-bottom: 0.75rem !important; }
-    .mt-3 { margin-top: 0.75rem !important; }
-    .mb-4 { margin-bottom: 1rem !important; }
-    .mt-4 { margin-top: 1rem !important; }
-
-    /* 调整图表容器 */
-    .chart-container {
-        height: 300px !important;
-    }
+    .btn { width: 100%; margin-bottom: 0.5rem; }
+    .chart-container { height: 220px !important; }
 }
 
-/* 超小屏幕设备 */
+/* 超小手机 <400px */
 @media (max-width: 400px) {
-    /* 进一步调整标题大小 */
     h1 { font-size: 1.25rem; }
     h2 { font-size: 1.125rem; }
-
-    /* 调整表单元素 */
-    .form-label {
-        font-size: 0.8125rem;
-    }
-
-    /* 调整卡片内边距 */
-    .card-header,
-    .card-body,
-    .card-footer {
-        padding: 0.625rem 0.875rem;
-    }
-
-    /* 调整按钮内边距 */
-    .btn {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
+    .form-label { font-size: 0.8125rem; }
+    .card-header, .card-body, .card-footer { padding: 0.625rem 0.875rem; }
+    .btn { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
 }

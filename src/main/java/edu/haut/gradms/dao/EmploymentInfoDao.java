@@ -62,12 +62,66 @@ public class EmploymentInfoDao {
         return list;
     }
 
+    private void updateFlow(Connection conn,
+                            int employmentId,
+                            String role,
+                            String action,
+                            String remark) throws SQLException {
+
+        String nextStage;
+        String finalStatus;
+
+        // ========================
+        // 1. 通过逻辑
+        // ========================
+        if ("APPROVED".equals(action)) {
+
+            if (ROLE_SUPERVISOR.equals(role)) {
+                nextStage = "CLASS_TEACHER";
+                finalStatus = "PENDING";
+
+            } else if (ROLE_CLASS_TEACHER.equals(role)) {
+                nextStage = "COUNSELOR";
+                finalStatus = "PENDING";
+
+            } else {
+                nextStage = "DONE";
+                finalStatus = "APPROVED";
+            }
+
+        }
+        // ========================
+        // 2. 驳回逻辑（统一结束）
+        // ========================
+        else {
+            nextStage = "DONE";
+            finalStatus = "REJECTED";
+        }
+
+        String sql =
+                "UPDATE employment_info " +
+                        "SET review_stage = ?, " +
+                        "    review_status = ?, " +
+                        "    review_remark = ? " +
+                        "WHERE employment_id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nextStage);
+            ps.setString(2, finalStatus);
+            ps.setString(3, remark);
+            ps.setInt(4, employmentId);
+
+            ps.executeUpdate();
+        }
+    }
 
     public boolean reviewByRole(int employmentId,
                                 int reviewerUserId,
                                 String reviewerRole,
                                 String action,
                                 String reviewRemark) {
+
         if (!"APPROVED".equals(action) && !"REJECTED".equals(action)) {
             return false;
         }
@@ -76,28 +130,18 @@ public class EmploymentInfoDao {
             conn.setAutoCommit(false);
 
             try {
-                EmploymentInfo current = findReviewableForUpdate(conn, employmentId, reviewerUserId, reviewerRole);
-                if (current == null) {
-                    conn.rollback();
-                    return false;
-                }
-
-                if ("APPROVED".equals(action)) {
-                    approveCurrentStage(conn, employmentId, current.getStudentId(), reviewerRole, reviewRemark);
-                } else {
-                    rejectCurrentStage(conn, employmentId, current.getStudentId(), reviewerRole, reviewRemark);
-                }
+                updateFlow(conn, employmentId, reviewerRole, action, reviewRemark);
 
                 conn.commit();
                 return true;
-            } catch (SQLException ex) {
+
+            } catch (SQLException e) {
                 conn.rollback();
-                throw ex;
-            } finally {
-                conn.setAutoCommit(true);
+                throw e;
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("链式审核失败", e);
+            throw new RuntimeException("审核失败", e);
         }
     }
 
@@ -390,11 +434,12 @@ public class EmploymentInfoDao {
      * 插入一条新的就业去向记录
      */
     public void insert(EmploymentInfo info) {
-        String sql = "INSERT INTO employment_info " +
-                "(student_id, status, company_name, position, salary_month, city, report_time, remark, " +
-                " review_status, review_stage, review_remark, " +
-                " supervisor_status, class_teacher_status, counselor_status) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        String sql =
+                "INSERT INTO employment_info " +
+                        "(student_id, status, company_name, position, salary_month, city, report_time, remark, " +
+                        " review_status, review_stage, review_remark) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -405,29 +450,24 @@ public class EmploymentInfoDao {
             ps.setString(4, info.getPosition());
             ps.setBigDecimal(5, info.getSalaryMonth());
             ps.setString(6, info.getCity());
-            ps.setTimestamp(7, info.getReportTime() == null
-                    ? new java.sql.Timestamp(System.currentTimeMillis())
-                    : new java.sql.Timestamp(info.getReportTime().getTime()));
+
+            ps.setTimestamp(7,
+                    info.getReportTime() == null
+                            ? new Timestamp(System.currentTimeMillis())
+                            : new Timestamp(info.getReportTime().getTime())
+            );
+
             ps.setString(8, info.getRemark());
 
-            // 新提交后，必须从指导老师开始
-            ps.setString(9, "PENDING");
-            ps.setString(10, "SUPERVISOR");
-            ps.setString(11, null);
-
-            ps.setString(12, "PENDING"); // 指导老师待审核
-            ps.setString(13, "WAITING"); // 班主任未到达
-            ps.setString(14, "WAITING"); // 导员未到达
+            // ⭐ 核心统一状态
+            ps.setString(9, "PENDING");      // review_status
+            ps.setString(10, "SUPERVISOR");  // review_stage
+            ps.setString(11, null);          // review_remark
 
             ps.executeUpdate();
 
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    info.setEmploymentId(rs.getInt(1));
-                }
-            }
         } catch (SQLException e) {
-            throw new RuntimeException("插入就业去向记录失败", e);
+            throw new RuntimeException("插入失败", e);
         }
     }
 

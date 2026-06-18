@@ -491,104 +491,64 @@
                             <div class="workflow-area">
                                 <div class="workflow-line">
 
+                                    <!-- 指导老师 -->
                                     <c:choose>
-                                        <c:when test="${e.supervisorStatus == 'APPROVED'}">
+                                        <c:when test="${e.reviewStage == 'SUPERVISOR' || e.reviewStage == 'CLASS_TEACHER' || e.reviewStage == 'COUNSELOR' || e.reviewStatus == 'APPROVED'}">
                                             <div class="step-card done">
                                                 <div class="step-icon">✓</div>
                                                 <div class="step-name">指导老师</div>
                                                 <div class="step-desc">第一步审核</div>
                                                 <span class="step-badge badge-done">已完成</span>
-                                                <c:if test="${not empty e.supervisorRemark}">
-                                                    <div class="remark-box">
-                                                        审核意见：<c:out value="${e.supervisorRemark}"/>
-                                                    </div>
-                                                </c:if>
                                             </div>
                                         </c:when>
 
-                                        <c:when test="${e.supervisorStatus == 'REJECTED'}">
+                                        <c:when test="${e.reviewStatus == 'REJECTED'}">
                                             <div class="step-card rejected">
                                                 <div class="step-icon">×</div>
                                                 <div class="step-name">指导老师</div>
                                                 <div class="step-desc">第一步审核</div>
                                                 <span class="step-badge badge-rejected">已驳回</span>
-                                                <c:if test="${not empty e.supervisorRemark}">
-                                                    <div class="remark-box">
-                                                        驳回原因：<c:out value="${e.supervisorRemark}"/>
-                                                    </div>
-                                                </c:if>
                                             </div>
                                         </c:when>
 
-                                        <c:when test="${e.supervisorStatus == 'PENDING'}">
+                                        <c:otherwise>
                                             <div class="step-card current">
                                                 <div class="step-icon">1</div>
                                                 <div class="step-name">指导老师</div>
                                                 <div class="step-desc">第一步审核</div>
                                                 <span class="step-badge badge-current">当前审核中</span>
-                                                <div class="remark-box">
-                                                    已提交，等待指导老师审核。
-                                                </div>
-                                            </div>
-                                        </c:when>
-
-                                        <c:otherwise>
-                                            <div class="step-card waiting">
-                                                <div class="step-icon">1</div>
-                                                <div class="step-name">指导老师</div>
-                                                <div class="step-desc">第一步审核</div>
-                                                <span class="step-badge badge-waiting">未开始</span>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
 
-                                    <c:choose>
-                                        <c:when test="${e.supervisorStatus == 'APPROVED'}">
-                                            <div class="flow-arrow done">➜</div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="flow-arrow">➜</div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <div class="flow-arrow">➜</div>
 
+                                    <!-- 班主任 -->
                                     <c:choose>
-                                        <c:when test="${e.classTeacherStatus == 'APPROVED'}">
+                                        <c:when test="${e.reviewStage == 'COUNSELOR' || e.reviewStatus == 'APPROVED'}">
                                             <div class="step-card done">
                                                 <div class="step-icon">✓</div>
                                                 <div class="step-name">班主任</div>
                                                 <div class="step-desc">第二步审核</div>
                                                 <span class="step-badge badge-done">已完成</span>
-                                                <c:if test="${not empty e.classTeacherRemark}">
-                                                    <div class="remark-box">
-                                                        审核意见：<c:out value="${e.classTeacherRemark}"/>
-                                                    </div>
-                                                </c:if>
                                             </div>
                                         </c:when>
 
-                                        <c:when test="${e.classTeacherStatus == 'REJECTED'}">
-                                            <div class="step-card rejected">
-                                                <div class="step-icon">×</div>
-                                                <div class="step-name">班主任</div>
-                                                <div class="step-desc">第二步审核</div>
-                                                <span class="step-badge badge-rejected">已驳回</span>
-                                                <c:if test="${not empty e.classTeacherRemark}">
-                                                    <div class="remark-box">
-                                                        驳回原因：<c:out value="${e.classTeacherRemark}"/>
-                                                    </div>
-                                                </c:if>
-                                            </div>
-                                        </c:when>
-
-                                        <c:when test="${e.classTeacherStatus == 'PENDING'}">
+                                        <c:when test="${e.reviewStage == 'CLASS_TEACHER'}">
                                             <div class="step-card current">
                                                 <div class="step-icon">2</div>
                                                 <div class="step-name">班主任</div>
                                                 <div class="step-desc">第二步审核</div>
                                                 <span class="step-badge badge-current">当前审核中</span>
-                                                <div class="remark-box">
-                                                    指导老师已通过，等待班主任审核。
-                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${e.reviewStatus == 'REJECTED'}">
+                                            <div class="step-card rejected">
+                                                <div class="step-icon">×</div>
+                                                <div class="step-name">班主任</div>
+                                                <div class="step-desc">第二步审核</div>
+                                                <span class="step-badge badge-rejected">已驳回</span>
                                             </div>
                                         </c:when>
 
@@ -596,59 +556,40 @@
                                             <div class="step-card waiting">
                                                 <div class="step-icon">2</div>
                                                 <div class="step-name">班主任</div>
-                                                <div class="step-desc">第二步审核</div>
+                                                <div class="step-desc">第二步未到达</div>
                                                 <span class="step-badge badge-waiting">未到达</span>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
 
-                                    <c:choose>
-                                        <c:when test="${e.classTeacherStatus == 'APPROVED'}">
-                                            <div class="flow-arrow done">➜</div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="flow-arrow">➜</div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <div class="flow-arrow">➜</div>
 
+                                    <!-- 导员 -->
                                     <c:choose>
-                                        <c:when test="${e.counselorStatus == 'APPROVED'}">
+                                        <c:when test="${e.reviewStatus == 'APPROVED'}">
                                             <div class="step-card done">
                                                 <div class="step-icon">✓</div>
                                                 <div class="step-name">导员</div>
                                                 <div class="step-desc">第三步审核</div>
                                                 <span class="step-badge badge-done">已完成</span>
-                                                <c:if test="${not empty e.counselorRemark}">
-                                                    <div class="remark-box">
-                                                        审核意见：<c:out value="${e.counselorRemark}"/>
-                                                    </div>
-                                                </c:if>
                                             </div>
                                         </c:when>
 
-                                        <c:when test="${e.counselorStatus == 'REJECTED'}">
-                                            <div class="step-card rejected">
-                                                <div class="step-icon">×</div>
-                                                <div class="step-name">导员</div>
-                                                <div class="step-desc">第三步审核</div>
-                                                <span class="step-badge badge-rejected">已驳回</span>
-                                                <c:if test="${not empty e.counselorRemark}">
-                                                    <div class="remark-box">
-                                                        驳回原因：<c:out value="${e.counselorRemark}"/>
-                                                    </div>
-                                                </c:if>
-                                            </div>
-                                        </c:when>
-
-                                        <c:when test="${e.counselorStatus == 'PENDING'}">
+                                        <c:when test="${e.reviewStage == 'COUNSELOR'}">
                                             <div class="step-card current">
                                                 <div class="step-icon">3</div>
                                                 <div class="step-name">导员</div>
                                                 <div class="step-desc">第三步审核</div>
                                                 <span class="step-badge badge-current">当前审核中</span>
-                                                <div class="remark-box">
-                                                    班主任已通过，等待导员最终审核。
-                                                </div>
+                                            </div>
+                                        </c:when>
+
+                                        <c:when test="${e.reviewStatus == 'REJECTED'}">
+                                            <div class="step-card rejected">
+                                                <div class="step-icon">×</div>
+                                                <div class="step-name">导员</div>
+                                                <div class="step-desc">第三步审核</div>
+                                                <span class="step-badge badge-rejected">已驳回</span>
                                             </div>
                                         </c:when>
 
@@ -656,51 +597,12 @@
                                             <div class="step-card waiting">
                                                 <div class="step-icon">3</div>
                                                 <div class="step-name">导员</div>
-                                                <div class="step-desc">第三步审核</div>
+                                                <div class="step-desc">未到达</div>
                                                 <span class="step-badge badge-waiting">未到达</span>
                                             </div>
                                         </c:otherwise>
                                     </c:choose>
                                 </div>
-
-                                <c:choose>
-                                    <c:when test="${e.reviewStatus == 'APPROVED'}">
-                                        <div class="workflow-summary summary-approved">
-                                            当前状态：你的就业去向登记已经完成全部审核，可以作为最终就业去向记录使用。
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${e.reviewStatus == 'REJECTED'}">
-                                        <div class="workflow-summary summary-rejected">
-                                            当前状态：该就业去向登记已被驳回，请查看对应节点的驳回原因，并按要求修改后重新提交。
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${e.reviewStage == 'SUPERVISOR'}">
-                                        <div class="workflow-summary summary-pending">
-                                            当前状态：你的申请已提交，正在等待指导老师审核。指导老师通过后，会自动流转到班主任。
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${e.reviewStage == 'CLASS_TEACHER'}">
-                                        <div class="workflow-summary summary-pending">
-                                            当前状态：指导老师已通过，正在等待班主任审核。班主任通过后，会自动流转到导员。
-                                        </div>
-                                    </c:when>
-
-                                    <c:when test="${e.reviewStage == 'COUNSELOR'}">
-                                        <div class="workflow-summary summary-pending">
-                                            当前状态：指导老师和班主任均已通过，正在等待导员进行最终审核。
-                                        </div>
-                                    </c:when>
-
-                                    <c:otherwise>
-                                        <div class="workflow-summary summary-pending">
-                                            当前状态：系统正在处理该就业登记流程。
-                                        </div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
                         </div>
                     </c:forEach>
                 </c:if>
@@ -763,16 +665,40 @@
 
                                     <td>
                                         <c:choose>
-                                            <c:when test="${item.overallStatus == 'APPROVED' || item.overallStatus == '已通过'}">
-                                                <span class="small-pill badge-done">已通过</span>
+                                            <c:when test="${e.reviewStatus == 'APPROVED'}">
+                                                <div class="workflow-summary summary-approved">
+                                                    当前状态：全部审核通过
+                                                </div>
                                             </c:when>
 
-                                            <c:when test="${item.overallStatus == 'REJECTED' || item.overallStatus == '已驳回'}">
-                                                <span class="small-pill badge-rejected">已驳回</span>
+                                            <c:when test="${e.reviewStatus == 'REJECTED'}">
+                                                <div class="workflow-summary summary-rejected">
+                                                    当前状态：已被驳回，请修改后重新提交
+                                                </div>
+                                            </c:when>
+
+                                            <c:when test="${e.reviewStage == 'SUPERVISOR'}">
+                                                <div class="workflow-summary summary-pending">
+                                                    当前状态：等待指导老师审核
+                                                </div>
+                                            </c:when>
+
+                                            <c:when test="${e.reviewStage == 'CLASS_TEACHER'}">
+                                                <div class="workflow-summary summary-pending">
+                                                    当前状态：指导老师已通过，等待班主任审核
+                                                </div>
+                                            </c:when>
+
+                                            <c:when test="${e.reviewStage == 'COUNSELOR'}">
+                                                <div class="workflow-summary summary-pending">
+                                                    当前状态：等待导员最终审核
+                                                </div>
                                             </c:when>
 
                                             <c:otherwise>
-                                                <span class="small-pill badge-current">审核中</span>
+                                                <div class="workflow-summary summary-pending">
+                                                    当前状态：处理中
+                                                </div>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
