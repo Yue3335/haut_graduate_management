@@ -38,6 +38,7 @@
 
 <!-- 引入自定义JS -->
 <script src="${pageContext.request.contextPath}/static/js/main.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/theme-toggle.js" defer></script>
 
 <!-- 统一页脚 -->
 <footer>
